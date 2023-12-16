@@ -122,64 +122,13 @@ missing_data_frame <- data.frame(Variable = names(missing_values), MissingValues
 missing_data_frame
 ```
 
-## categorical数据编码-r里面可以不做
 
-```{r}
-# Load the necessary libraries
-library(dplyr)
-library(tidyr)
 
-# Encode Categorical Variables
-# Label Encoding for binary variables
-data$Gender <- as.numeric(as.factor(data$Gender)) - 1
-data$IsFirstChild <- as.numeric(as.factor(data$IsFirstChild)) - 1
-data$LunchType <- as.numeric(as.factor(data$LunchType)) - 1
-data$TestPrep<- as.numeric(as.factor(data$TestPrep)) - 1
-data$TransportMeans<- as.numeric(as.factor(data$TransportMeans)) - 1
-```
 
-```{r}
-# One-Hot Encoding for non-binary categorical variables
-library(caret)
 
-# Convert character variables to factors
-data <- data %>% mutate(across(where(is.character), as.factor))
+# 检查变量之间的边际分布和成对关系-correlation/pairwise-带修改完善
 
-# Select non-binary categorical variables
-non_binary_categorical_vars <- names(Filter(function(x) is.factor(x) && length(unique(x)) > 2, data))
 
-# Create a formula for non-binary categorical variables
-formula <- as.formula(paste("~", paste(non_binary_categorical_vars, collapse = "+")))
-
-# Applying One-Hot Encoding
-dummies <- dummyVars(formula, data)
-data_transformed <- data.frame(predict(dummies, newdata = data))
-
-# Optionally, bind with original data (excluding original non-binary categorical variables)
-data_final <- cbind(select(data, -all_of(non_binary_categorical_vars)), data_transformed)
-```
-
-# 检查变量之间的边际分布和成对关系-暂时看不出
-
-```{r}
-# Load necessary libraries
-library(ggplot2)
-library(GGally)
-library(dplyr)
-
-# Splitting the dataset into independent variables (X) and dependent variables (Y)
-X <- data %>% select(-c(MathScore, ReadingScore, WritingScore))
-Y_math <- data$MathScore
-Y_reading <-data$ReadingScore
-Y_writing <- data$WritingScore
-
-# Convert character variables to factors for better handling in plots
-data <- X  %>% mutate(across(where(is.character), as.factor))
-
-# Plotting pairwise relationships with GGally
-plot=ggpairs(data)
-
-```
 
 
 # 模型构建
@@ -190,12 +139,31 @@ library(tidyverse)
 library(caret)
 library(car)
 
+# 设置分割的比例
+set.seed(123) # 设置一个随机种子以保证结果的可重复性
+splitRatio <- 0.8
+
+# 计算训练集的大小
+trainIndex <- sample(seq_len(nrow(data)), size = floor(splitRatio * nrow(data)))
+
+# 创建训练集和测试集
+trainData <- data[trainIndex, ]
+testData <- data[-trainIndex, ]
+
+
+
+# Splitting the traindataset into independent variables (X) and dependent variables (Y)
+X_train <- trainData %>% select(-c(MathScore, ReadingScore, WritingScore))
+Y_math_train <- trainData$MathScore
+Y_reading_train <-trainData$ReadingScore
+Y_writing_train <- trainData$WritingScore
+
 
 
 # Building linear regression models
-model_math <- lm(Y_math ~ ., data = X)
-model_reading <- lm(Y_reading ~ ., data = X)
-model_writing <- lm(Y_writing ~ ., data = X)
+model_math <- lm(Y_math_train ~ ., data = X_train)
+model_reading <- lm(Y_reading_train ~ ., data = X_train)
+model_writing <- lm(Y_writing_train ~ ., data = X_train)
 
 # Summarizing the models
 summary(model_math)
@@ -204,11 +172,11 @@ summary(model_writing)
 
 ```
 
-## 这里还要修改
+## add interation-这里还要修改
 
 ```{r}
 # Checking for interaction effects (example for math score)
-model_math_interaction <- lm(Y_math ~  (.)^2, data = X)
+model_math_interaction <- lm(Y_math_train ~  (.)^2, data = X_train)
 summary(model_math_interaction)
 
 # Compare the models
@@ -216,7 +184,7 @@ anova(model_math, model_math_interaction)
 
 # Investigate if one score can help predict another
 # Example: Using MathScore to predict ReadingScore
-model_reading_with_math <- lm(Y_reading ~ . + Y_math, data = X)
+model_reading_with_math <- lm(Y_reading_train ~ . + Y_math_train, data = XX_train)
 summary(model_reading_with_math)
 ```
 
@@ -231,27 +199,5 @@ step(model_reading, direction='backward')
 ```
 ## selected model
 
-```{r}
-selectedmodel=lm(formula = Y_math ~ Gender + EthnicGroup + ParentEduc + 
-    LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + 
-    WklyStudyHours, 
-    data = X)
-summary(selectedmodel)
-```
-
-```{r}
-selectedmodel=lm(formula = Y_reading ~ Gender + EthnicGroup + ParentEduc + 
-    LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + 
-    WklyStudyHours, 
-    data = X)
-summary(selectedmodel)
-```
-```{r}
-selectedmodel=lm(formula = Y_writing ~ Gender + EthnicGroup + ParentEduc + 
-    LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + 
-    WklyStudyHours, 
-    data = X)
-summary(selectedmodel)
-```
 
 
