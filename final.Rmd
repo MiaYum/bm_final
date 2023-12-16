@@ -2,7 +2,9 @@
 title: "final project"
 author: "Aiying Huang"
 date: "2023-12-01"
-output: pdf_document
+output: 
+  pdf_document:
+    latex_engine: xelatex
 ---
 
 
@@ -139,63 +141,93 @@ library(tidyverse)
 library(caret)
 library(car)
 
-# 设置分割的比例
-set.seed(123) # 设置一个随机种子以保证结果的可重复性
+set.seed(123) 
 splitRatio <- 0.8
 
-# 计算训练集的大小
 trainIndex <- sample(seq_len(nrow(data)), size = floor(splitRatio * nrow(data)))
-
-# 创建训练集和测试集
 trainData <- data[trainIndex, ]
 testData <- data[-trainIndex, ]
 
-
-
-# Splitting the traindataset into independent variables (X) and dependent variables (Y)
+# Splitting the train dataset into independent variables (X) and dependent variables (Y)
 X_train <- trainData %>% select(-c(MathScore, ReadingScore, WritingScore))
 Y_math_train <- trainData$MathScore
 Y_reading_train <-trainData$ReadingScore
 Y_writing_train <- trainData$WritingScore
-
-
-
-# Building linear regression models
-model_math <- lm(Y_math_train ~ ., data = X_train)
-model_reading <- lm(Y_reading_train ~ ., data = X_train)
-model_writing <- lm(Y_writing_train ~ ., data = X_train)
-
-# Summarizing the models
-summary(model_math)
-summary(model_reading)
-summary(model_writing)
-
 ```
 
 ## add interation-这里还要修改
 
 ```{r}
 # Checking for interaction effects (example for math score)
-model_math_interaction <- lm(Y_math_train ~  (.)^2, data = X_train)
-summary(model_math_interaction)
-
-# Compare the models
-anova(model_math, model_math_interaction)
-
-# Investigate if one score can help predict another
-# Example: Using MathScore to predict ReadingScore
-model_reading_with_math <- lm(Y_reading_train ~ . + Y_math_train, data = XX_train)
-summary(model_reading_with_math)
+full_model_math_interaction <- lm(Y_math_train ~  (.)^2, data = X_train)
+full_model_reading_interaction <- lm(Y_reading_train ~  (.)^2, data = X_train)
+full_model_writing_interaction <- lm(Y_writing_train ~  (.)^2, data = X_train)
 ```
 
 ## 模型选择
 
 ```{r}
-step(model_math, direction='backward')
+# backward (compare)
+AICmodel_math_interaction = 
+  step(full_model_math_interaction, trace = 0, direction='backward')
+BICmodel_math_interaction = 
+  step(full_model_math_interaction, scale = log(nrow(X_train)), trace = 0, direction='backward')
+
+#参数全部输出有点太多了，仅仅输出参数数量进行对比
+num_params_AICmodel <- length(coef(AICmodel_math_interaction))
+num_params_BICmodel <- length(coef(BICmodel_math_interaction))
+
+cat("AIC Model Parameters:", num_params_AICmodel, "\n")
+cat("BIC Model Parameters:", num_params_BICmodel, "\n")
+
 ```
 
 ```{r}
-step(model_reading, direction='backward')
+
+#此处解释因为bic做准则比aic的变量多，我们倾向选择变量少的
+model_math_interaction = AICmodel_math_interaction
+model_reading_interaction =
+  step(full_model_reading_interaction, trace = 0, direction='backward')
+model_writing_interaction =
+  step(full_model_writing_interaction, trace = 0, direction='backward')
+
+# results
+# r.squared..
+glance_math = broom::glance(model_math_interaction) |>
+  mutate(model = "Math") |>
+  select(model, r.squared, adj.r.squared, p.value, AIC, BIC) 
+
+glance_reading = broom::glance(model_reading_interaction) |>
+  mutate(model = "Reading") |>
+  select(model, r.squared, adj.r.squared, p.value, AIC, BIC) 
+
+glance_writing = broom::glance(model_writing_interaction) |>
+  mutate(model = "Writing") |>
+  select(model, r.squared, adj.r.squared, p.value, AIC, BIC) 
+
+bind_rows(glance_math, glance_reading, glance_writing) |>
+  knitr::kable()
+  
+# coef
+broom::tidy(model_math_interaction) |>
+  knitr::kable(caption = "Math")
+broom::tidy(model_reading_interaction) |>
+  knitr::kable(caption = "Reading")
+broom::tidy(model_writing_interaction) |>
+  knitr::kable(caption = "Writing")
+```
+
+```{r}
+par(mfrow=c(2,2))
+plot(model_math_interaction) 
+mtext("Math Model Diagnostic", outer = TRUE, cex = 1, line = -1)
+
+plot(model_reading_interaction)
+mtext("Reading Model Diagnostic", outer = TRUE, cex = 1, line = -1)
+
+plot(model_writing_interaction)
+mtext("Writing Model Diagnostic", outer = TRUE, cex = 1, line = -1)
+
 ```
 ## selected model
 
