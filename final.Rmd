@@ -161,7 +161,7 @@ library(tidyverse)
 library(corrplot)
 
 # Compute the Cramer's V correlation between variables
-cramer_v_matrix <- assoc(data, method = "cramer")
+cramer_v_matrix <- assoc(data, method = "auto")
 
 # Extract the matrix with Cramer's V values
 cramer_v_values <- as.matrix(cramer_v_matrix$value)
