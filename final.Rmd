@@ -1,0 +1,257 @@
+---
+title: "final project"
+author: "Aiying Huang"
+date: "2023-12-01"
+output: pdf_document
+---
+
+
+# 描述性统计
+
+## 变量分布
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(GGally)
+library(gridExtra)
+
+# Read the data
+data <- read.csv("./Project_1_data.csv")
+
+# 1. Descriptive statistics table for all variables
+summary(data)
+
+# 2. Explore distribution of results and consider potential transformations
+# Histograms for continuous variables
+hist_math <- ggplot(data, aes(x = MathScore)) + geom_histogram(bins = 30) + ggtitle("Histogram of Math Scores")
+hist_reading <- ggplot(data, aes(x = ReadingScore)) + geom_histogram(bins = 30) + ggtitle("Histogram of Reading Scores")
+hist_writing <- ggplot(data, aes(x = WritingScore)) + geom_histogram(bins = 30) + ggtitle("Histogram of Writing Scores")
+
+# Boxplots for continuous variables to check for outliers
+box_math <- ggplot(data, aes(y = MathScore)) + geom_boxplot() + ggtitle("Boxplot of Math Scores")
+box_reading <- ggplot(data, aes(y = ReadingScore)) + geom_boxplot() + ggtitle("Boxplot of Reading Scores")
+box_writing <- ggplot(data, aes(y = WritingScore)) + geom_boxplot() + ggtitle("Boxplot of Writing Scores")
+
+# Grid of plots
+grid.arrange(hist_math, hist_reading, hist_writing, box_math, box_reading, box_writing, ncol = 3)
+
+# 3. Check for potential outliers or influential points
+# Scatterplot matrix for continuous variables
+ggpairs(data, columns = c("MathScore", "ReadingScore", "WritingScore"))
+
+```
+
+
+## 缺失值
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(reshape2)
+
+
+# Creating a function to count NA and empty strings as missing values
+count_missing <- function(x) sum(is.na(x) | x == "")
+# Calculating the missing values
+missing_values <- sapply(data, function(x) count_missing(x))
+
+# Creating a dataframe for missing values
+missing_data_frame <- data.frame(Variable = names(missing_values), MissingValues = missing_values)
+
+# Convert empty strings to NA
+data[data == ""] <- NA
+
+# Melt the data for visualization
+melted_data <- melt(data.frame(row = 1:nrow(data), data), id.vars = 'row')
+
+# Creating the heatmap
+ggplot(melted_data, aes(x = variable, y = row)) + 
+  geom_tile(aes(fill = is.na(value))) + 
+  scale_fill_manual(values = c('white', 'red'), guide = FALSE) + 
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = 'Variables', y = 'Observation Rows', title = 'Missing Data Heatmap')
+```
+```{r}
+missing_data_frame
+```
+
+
+
+
+# 数据预处理
+
+## 缺失值填补
+
+```{r}
+# Imputing missing values
+# For columns with fewer missing values, replace with mode
+get_mode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+data$PracticeSport[is.na(data$PracticeSport)] <- get_mode(data$PracticeSport)
+data$IsFirstChild[is.na(data$IsFirstChild)] <- get_mode(data$IsFirstChild)
+
+# For columns with more missing values, you can choose to impute or drop
+# Imputing with mode (as an example)
+data$EthnicGroup[is.na(data$EthnicGroup)] <- get_mode(data$EthnicGroup)
+data$ParentEduc[is.na(data$ParentEduc)] <- get_mode(data$ParentEduc)
+data$TestPrep[is.na(data$TestPrep)] <- get_mode(data$TestPrep)
+data$ParentMaritalStatus[is.na(data$ParentMaritalStatus)] <- get_mode(data$TestPrep)
+data$WklyStudyHours[is.na(data$WklyStudyHours)]<- get_mode(data$WklyStudyHours)
+data$NrSiblings[is.na(data$NrSiblings)] <- mean(data$NrSiblings,na.rm = TRUE)
+
+# Alternatively, to drop rows with NA values in these columns-TransportMeans
+data <- data %>% drop_na(TransportMeans)
+```
+
+
+```{r}
+# Creating a function to count NA and empty strings as missing values
+count_missing <- function(x) sum(is.na(x) | x == "")
+# Calculating the missing values
+missing_values <- sapply(data, function(x) count_missing(x))
+
+# Creating a dataframe for missing values
+missing_data_frame <- data.frame(Variable = names(missing_values), MissingValues = missing_values)
+missing_data_frame
+```
+
+## categorical数据编码-r里面可以不做
+
+```{r}
+# Load the necessary libraries
+library(dplyr)
+library(tidyr)
+
+# Encode Categorical Variables
+# Label Encoding for binary variables
+data$Gender <- as.numeric(as.factor(data$Gender)) - 1
+data$IsFirstChild <- as.numeric(as.factor(data$IsFirstChild)) - 1
+data$LunchType <- as.numeric(as.factor(data$LunchType)) - 1
+data$TestPrep<- as.numeric(as.factor(data$TestPrep)) - 1
+data$TransportMeans<- as.numeric(as.factor(data$TransportMeans)) - 1
+```
+
+```{r}
+# One-Hot Encoding for non-binary categorical variables
+library(caret)
+
+# Convert character variables to factors
+data <- data %>% mutate(across(where(is.character), as.factor))
+
+# Select non-binary categorical variables
+non_binary_categorical_vars <- names(Filter(function(x) is.factor(x) && length(unique(x)) > 2, data))
+
+# Create a formula for non-binary categorical variables
+formula <- as.formula(paste("~", paste(non_binary_categorical_vars, collapse = "+")))
+
+# Applying One-Hot Encoding
+dummies <- dummyVars(formula, data)
+data_transformed <- data.frame(predict(dummies, newdata = data))
+
+# Optionally, bind with original data (excluding original non-binary categorical variables)
+data_final <- cbind(select(data, -all_of(non_binary_categorical_vars)), data_transformed)
+```
+
+# 检查变量之间的边际分布和成对关系-暂时看不出
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(GGally)
+library(dplyr)
+
+# Splitting the dataset into independent variables (X) and dependent variables (Y)
+X <- data %>% select(-c(MathScore, ReadingScore, WritingScore))
+Y_math <- data$MathScore
+Y_reading <-data$ReadingScore
+Y_writing <- data$WritingScore
+
+# Convert character variables to factors for better handling in plots
+data <- X  %>% mutate(across(where(is.character), as.factor))
+
+# Plotting pairwise relationships with GGally
+plot=ggpairs(data)
+
+```
+
+
+# 模型构建
+
+```{r}
+# Load necessary libraries
+library(tidyverse)
+library(caret)
+library(car)
+
+
+
+# Building linear regression models
+model_math <- lm(Y_math ~ ., data = X)
+model_reading <- lm(Y_reading ~ ., data = X)
+model_writing <- lm(Y_writing ~ ., data = X)
+
+# Summarizing the models
+summary(model_math)
+summary(model_reading)
+summary(model_writing)
+
+```
+
+## 这里还要修改
+
+```{r}
+# Checking for interaction effects (example for math score)
+model_math_interaction <- lm(Y_math ~  (.)^2, data = X)
+summary(model_math_interaction)
+
+# Compare the models
+anova(model_math, model_math_interaction)
+
+# Investigate if one score can help predict another
+# Example: Using MathScore to predict ReadingScore
+model_reading_with_math <- lm(Y_reading ~ . + Y_math, data = X)
+summary(model_reading_with_math)
+```
+
+## 模型选择
+
+```{r}
+step(model_math, direction='backward')
+```
+
+```{r}
+step(model_reading, direction='backward')
+```
+## selected model
+
+```{r}
+selectedmodel=lm(formula = Y_math ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + 
+    WklyStudyHours, 
+    data = X)
+summary(selectedmodel)
+```
+
+```{r}
+selectedmodel=lm(formula = Y_reading ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + 
+    WklyStudyHours, 
+    data = X)
+summary(selectedmodel)
+```
+```{r}
+selectedmodel=lm(formula = Y_writing ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + IsFirstChild + 
+    WklyStudyHours, 
+    data = X)
+summary(selectedmodel)
+```
+
+
