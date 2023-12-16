@@ -164,6 +164,9 @@ full_model_reading_interaction <- lm(Y_reading_train ~  (.)^2, data = X_train)
 full_model_writing_interaction <- lm(Y_writing_train ~  (.)^2, data = X_train)
 ```
 
+
+
+
 ## 模型选择
 
 ```{r}
@@ -288,17 +291,196 @@ print(vif_values_reading)
 ```{r}
 library(caret)
 control <- trainControl(method = "cv", number = 10)
-set.seed(123) # 为了结果的可重复性
-model_cv <- train(Y_writing_train_Out ~ Gender + EthnicGroup + ParentEduc + 
+set.seed(123)
+
+math_model_data <- cbind(X_train_math_Out, Y_math_train_Out)
+math_model_cv <- train(Y_math_train_Out ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
+    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
+    Gender:LunchType + Gender:PracticeSport + EthnicGroup:ParentEduc + 
+    EthnicGroup:IsFirstChild + ParentEduc:TestPrep + ParentEduc:PracticeSport + 
+    ParentEduc:IsFirstChild + LunchType:PracticeSport + LunchType:TransportMeans + 
+    TestPrep:WklyStudyHours + ParentMaritalStatus:PracticeSport + 
+    ParentMaritalStatus:IsFirstChild + ParentMaritalStatus:TransportMeans + 
+    PracticeSport:WklyStudyHours + IsFirstChild:NrSiblings + 
+    IsFirstChild:TransportMeans + IsFirstChild:WklyStudyHours, 
+    data = math_model_data, method = "lm", trControl = control)
+
+set.seed(124)
+
+reading_model_data <- cbind(X_train_reading_Out, Y_reading_train_Out)
+reading_model_cv <- train( Y_reading_train_Out ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
+    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
+    Gender:IsFirstChild + LunchType:PracticeSport + LunchType:IsFirstChild + 
+    TestPrep:NrSiblings + TestPrep:TransportMeans + ParentMaritalStatus:PracticeSport + 
+    ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
+    NrSiblings:WklyStudyHours, data = reading_model_data, 
+    method = "lm", trControl = control)
+
+set.seed(125)
+
+writing_model_data <- cbind(X_train_writing_Out, Y_writing_train_Out)
+writing_model_cv <- train(Y_writing_train_Out ~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
     IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
     ParentEduc:IsFirstChild + LunchType:PracticeSport + LunchType:IsFirstChild + 
     TestPrep:NrSiblings + ParentMaritalStatus:PracticeSport + 
     ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
-    IsFirstChild:WklyStudyHours, data = X_train_writing_Out,
-                 method = "lm",
-                 trControl = control)
+    IsFirstChild:WklyStudyHours, data = writing_model_data, 
+    method = "lm", trControl = control)
 
+
+print(math_model_cv)
+print(reading_model_cv)
+print(writing_model_cv)
+
+
+```
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(caret)
+library(purrr)
+library(tidyverse)
+library(plotly)
+library(modelr)
+library(tidyr)
+library(randomForest)
+library(boot)
+library(patchwork)
+
+set.seed(123)
+# generate a cv dataframe 
+cv_df_math =
+  crossv_mc(math_model_data, 10) %>% 
+  mutate(
+    train = map(train, as_tibble),
+    test = map(test, as_tibble))
+
+# fit the model to the generated CV dataframe
+cv_df_math =
+  cv_df_math |> 
+  mutate(
+    model  = map(train, ~lm( Y_math_train_Out ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
+    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
+    Gender:LunchType + Gender:PracticeSport + EthnicGroup:ParentEduc + 
+    EthnicGroup:IsFirstChild + ParentEduc:TestPrep + ParentEduc:PracticeSport + 
+    ParentEduc:IsFirstChild + LunchType:PracticeSport + LunchType:TransportMeans + 
+    TestPrep:WklyStudyHours + ParentMaritalStatus:PracticeSport + 
+    ParentMaritalStatus:IsFirstChild + ParentMaritalStatus:TransportMeans + 
+    PracticeSport:WklyStudyHours + IsFirstChild:NrSiblings + 
+    IsFirstChild:TransportMeans + IsFirstChild:WklyStudyHours, data = math_model_data)),
+    rmse = map2_dbl(model, test, ~rmse(model = .x, data = .y)))
+
+# plot the prediction error
+cv_df_math |>
+  select(rmse) |> 
+  pivot_longer(
+    everything(),
+    names_to = "model", 
+    values_to = "rmse") %>% 
+  ggplot(aes(x = model, y = rmse)) + 
+  geom_violin(fill = "blue", alpha = 0.5) +
+  labs(
+    title = "Prediction Errors For Math Model Under CV",
+    x = "MLR",
+    y = "Prediction Errors"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text = element_text(color = "grey20"),
+    axis.title = element_text(color = "grey20")
+  )
+
+
+set.seed(123)
+# generate a cv dataframe 
+cv_df_reading =
+  crossv_mc(reading_model_data, 10) %>% 
+  mutate(
+    train = map(train, as_tibble),
+    test = map(test, as_tibble))
+
+# fit the model to the generated CV dataframe
+cv_df_reading =
+  cv_df_reading |> 
+  mutate(
+    model  = map(train, ~lm(Y_reading_train_Out ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
+    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
+    Gender:IsFirstChild + LunchType:PracticeSport + LunchType:IsFirstChild + 
+    TestPrep:NrSiblings + TestPrep:TransportMeans + ParentMaritalStatus:PracticeSport + 
+    ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
+    NrSiblings:WklyStudyHours, data = reading_model_data)),
+    rmse = map2_dbl(model, test, ~rmse(model = .x, data = .y)))
+
+# plot the prediction error
+cv_df_reading |>
+  select(rmse) |> 
+  pivot_longer(
+    everything(),
+    names_to = "model", 
+    values_to = "rmse") %>% 
+  ggplot(aes(x = model, y = rmse)) + 
+  geom_violin(fill = "pink", alpha = 0.5) +
+  labs(
+    title = "Prediction Errors For Reading Model Under CV",
+    x = "MLR",
+    y = "Prediction Errors"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text = element_text(color = "grey20"),
+    axis.title = element_text(color = "grey20")
+  )
+
+set.seed(123)
+# generate a cv dataframe 
+cv_df_writing =
+  crossv_mc(writing_model_data, 10) %>% 
+  mutate(
+    train = map(train, as_tibble),
+    test = map(test, as_tibble))
+
+# fit the model to the generated CV dataframe
+cv_df_writing =
+  cv_df_writing |> 
+  mutate(
+    model  = map(train, ~lm(Y_writing_train_Out ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
+    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
+    ParentEduc:IsFirstChild + LunchType:PracticeSport + LunchType:IsFirstChild + 
+    TestPrep:NrSiblings + ParentMaritalStatus:PracticeSport + 
+    ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
+    IsFirstChild:WklyStudyHours, data = writing_model_data)),
+    rmse = map2_dbl(model, test, ~rmse(model = .x, data = .y)))
+
+# plot the prediction error
+cv_df_writing |>
+  select(rmse) |> 
+  pivot_longer(
+    everything(),
+    names_to = "model", 
+    values_to = "rmse") %>% 
+  ggplot(aes(x = model, y = rmse)) + 
+  geom_violin(fill = "yellow", alpha = 0.5) +
+  labs(
+    title = "Prediction Errors For Writing Model Under CV",
+    x = "MLR",
+    y = "Prediction Errors"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text = element_text(color = "grey20"),
+    axis.title = element_text(color = "grey20")
+  )
 ```
 
 
@@ -306,8 +488,63 @@ model_cv <- train(Y_writing_train_Out ~ Gender + EthnicGroup + ParentEduc +
 # prediction
 
 ```{r}
-
+# Splitting the train dataset into independent variables (X) and dependent variables (Y)
+X_test<- testData %>% select(-c(MathScore, ReadingScore, WritingScore))
+Y_math_test <- testData$MathScore
+Y_reading_test <-testData$ReadingScore
+Y_writing_test <- testData$WritingScore
 ```
+```{r}
+final_math=lm(Y_math_train_Out ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
+    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
+    Gender:LunchType + Gender:PracticeSport + EthnicGroup:ParentEduc + 
+    EthnicGroup:IsFirstChild + ParentEduc:TestPrep + ParentEduc:PracticeSport + 
+    ParentEduc:IsFirstChild + LunchType:PracticeSport + LunchType:TransportMeans + 
+    TestPrep:WklyStudyHours + ParentMaritalStatus:PracticeSport + 
+    ParentMaritalStatus:IsFirstChild + ParentMaritalStatus:TransportMeans + 
+    PracticeSport:WklyStudyHours + IsFirstChild:NrSiblings + 
+    IsFirstChild:TransportMeans + IsFirstChild:WklyStudyHours, 
+    data = math_model_data)
+final_reading=lm(Y_reading_train_Out ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
+    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
+    Gender:IsFirstChild + LunchType:PracticeSport + LunchType:IsFirstChild + 
+    TestPrep:NrSiblings + TestPrep:TransportMeans + ParentMaritalStatus:PracticeSport + 
+    ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
+    NrSiblings:WklyStudyHours, data = reading_model_data)
+final_writing=lm(Y_writing_train_Out ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
+    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
+    ParentEduc:IsFirstChild + LunchType:PracticeSport + LunchType:IsFirstChild + 
+    TestPrep:NrSiblings + ParentMaritalStatus:PracticeSport + 
+    ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
+    IsFirstChild:WklyStudyHours, data = writing_model_data)
+```
+
+
+
+```{r}
+math_predictions <- predict(final_math, newdata = X_test)
+reading_predictions <- predict(final_reading, newdata = X_test)
+writing_predictions <- predict(final_writing, newdata = X_test)
+```
+
+```{r}
+math_mspe <- mean((Y_math_test - math_predictions)^2)
+reading_mspe <- mean((Y_reading_test - reading_predictions)^2)
+writing_mspe <- mean((Y_writing_test - writing_predictions)^2)
+mspe_values <- data.frame(
+  Subject = c("Math", "Reading", "Writing"),
+  MSPE = c(math_mspe, reading_mspe, writing_mspe)
+)
+library(knitr)
+
+kable(mspe_values, col.names = c("Subject", "MSPE"), caption = "MSPE Values for Different Subjects")
+```
+
+
+
 
 
 
