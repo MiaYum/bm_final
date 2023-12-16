@@ -139,7 +139,44 @@ missing_data_frame <- data.frame(Variable = names(missing_values), MissingValues
 
 
 # 检查变量之间的边际分布和成对关系-correlation/pairwise-带修改完善
+## Examine the marginal distributions and pairwise relationships between variables
 
+```{r}
+# Load necessary libraries
+library(tidyverse)
+library(ggplot2) 
+library(GGally)
+
+# draw the pariplot
+ggpairs(data, columns=1:14, aes(alpha = 0.3))+ 
+  theme_bw()
+```
+这边感觉没有别的办法了，最后都是这个14*14的图，感觉不行我们直接这样然后说没看到obvious nonlinearities
+
+## Correlation between variables
+```{r}
+# Load necessary libraries
+library(greybox)
+library(tidyverse)
+library(corrplot)
+
+# Compute the Cramer's V correlation between variables
+cramer_v_matrix <- assoc(data, method = "cramer")
+
+# Extract the matrix with Cramer's V values
+cramer_v_values <- as.matrix(cramer_v_matrix$value)
+
+# Print the correlation matrix results
+knitr::kable(cramer_v_values, digits = 3)
+
+# Create a heatmap
+corrplot(cramer_v_values, type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 45)
+```
+（这个变量的解释）Cramér's V (for categorical variables) varies from 0 (corresponding to no association between the variables) to 1 (complete association) and can reach 1 only when each variable is completely determined by the other.
+
+这边有很多no relation的（很正常），但没有哪两个是colinear的
+这个heatmap感觉可以不用放了，很奇怪，最后直接到table就好？
 
 
 
