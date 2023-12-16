@@ -155,7 +155,7 @@ Y_reading_train <-trainData$ReadingScore
 Y_writing_train <- trainData$WritingScore
 ```
 
-## add interation-这里还要修改
+## add interation
 
 ```{r}
 # Checking for interaction effects (example for math score)
@@ -227,9 +227,90 @@ mtext("Reading Model Diagnostic", outer = TRUE, cex = 1, line = -1)
 
 plot(model_writing_interaction)
 mtext("Writing Model Diagnostic", outer = TRUE, cex = 1, line = -1)
+```
+## Influential observations(mathmodel删掉了ParentEduc:ParentMaritalStatus不然有na)
+
+
+```{r}
+# remove influential points from the residual and leverage plots
+X_train_math_Out =X_train[-c(49,181,557,642),]
+Y_math_train_Out=Y_math_train[-c(49,181,557,642)]
+X_train_reading_Out =X_train[-c(181,252,268),]
+Y_reading_train_Out=Y_reading_train[-c(181,252,268)]
+X_train_writing_Out =X_train[-c(5,268,281),]
+Y_writing_train_Out=Y_writing_train[-c(5,268,281)]
+# fit model without influential points
+without_math = lm(Y_math_train_Out ~  Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
+    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
+    Gender:LunchType + Gender:PracticeSport + EthnicGroup:ParentEduc + 
+    EthnicGroup:IsFirstChild + ParentEduc:TestPrep + 
+    ParentEduc:PracticeSport + ParentEduc:IsFirstChild + LunchType:PracticeSport + 
+    LunchType:TransportMeans + TestPrep:WklyStudyHours + ParentMaritalStatus:PracticeSport + 
+    ParentMaritalStatus:IsFirstChild + ParentMaritalStatus:TransportMeans + 
+    PracticeSport:WklyStudyHours + IsFirstChild:NrSiblings + 
+    IsFirstChild:TransportMeans + IsFirstChild:WklyStudyHours, data = X_train_math_Out)
+without_reading = lm(Y_reading_train_Out ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
+    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
+    Gender:IsFirstChild + LunchType:PracticeSport + LunchType:IsFirstChild + 
+    TestPrep:NrSiblings + TestPrep:TransportMeans + ParentMaritalStatus:PracticeSport + 
+    ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
+    NrSiblings:WklyStudyHours, data = X_train_reading_Out)
+without_writing = lm(Y_writing_train_Out ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
+    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
+    ParentEduc:IsFirstChild + LunchType:PracticeSport + LunchType:IsFirstChild + 
+    TestPrep:NrSiblings + ParentMaritalStatus:PracticeSport + 
+    ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
+    IsFirstChild:WklyStudyHours, data = X_train_writing_Out)
+summary(without_math)
+summary(without_reading)
+summary(without_writing)
+```
+
+## multicolinearity-没有强烈的多重共线性问题
+
+```{r}
+# 计算方差膨胀因子（GVIF）
+vif_values_math <- vif(without_math , type = 'predictor')
+print(vif_values_math)
+vif_values_writing <- vif(without_writing, type = 'predictor')
+print(vif_values_writing)
+vif_values_reading <- vif(without_reading, type = 'predictor')
+print(vif_values_reading)
+#没有强烈的多重共线性问题
+```
+
+## model validation
+
+# cross validation
+```{r}
+library(caret)
+control <- trainControl(method = "cv", number = 10)
+set.seed(123) # 为了结果的可重复性
+model_cv <- train(Y_writing_train_Out ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
+    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
+    ParentEduc:IsFirstChild + LunchType:PracticeSport + LunchType:IsFirstChild + 
+    TestPrep:NrSiblings + ParentMaritalStatus:PracticeSport + 
+    ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
+    IsFirstChild:WklyStudyHours, data = X_train_writing_Out,
+                 method = "lm",
+                 trControl = control)
 
 ```
-## selected model
+
+
+
+# prediction
+
+```{r}
+
+```
+
+
+
 
 
 
