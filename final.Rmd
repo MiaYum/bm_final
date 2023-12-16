@@ -13,6 +13,8 @@ output:
 ## 变量分布
 
 ```{r}
+#| echo: false
+#| message: false
 # Load necessary libraries
 library(dplyr)
 library(tidyr)
@@ -24,7 +26,7 @@ library(gridExtra)
 data <- read.csv("./Project_1_data.csv")
 
 # 1. Descriptive statistics table for all variables
-summary(data)
+skimr::skim(data)
 
 # 2. Explore distribution of results and consider potential transformations
 # Histograms for continuous variables
@@ -50,6 +52,8 @@ ggpairs(data, columns = c("MathScore", "ReadingScore", "WritingScore"))
 ## 缺失值
 
 ```{r}
+#| echo: false
+#| message: false
 # Load necessary libraries
 library(ggplot2)
 library(reshape2)
@@ -78,6 +82,8 @@ ggplot(melted_data, aes(x = variable, y = row)) +
   labs(x = 'Variables', y = 'Observation Rows', title = 'Missing Data Heatmap')
 ```
 ```{r}
+#| echo: false
+#| message: false
 missing_data_frame
 ```
 
@@ -89,6 +95,8 @@ missing_data_frame
 ## 缺失值填补
 
 ```{r}
+#| echo: false
+#| message: false
 # Imputing missing values
 # For columns with fewer missing values, replace with mode
 get_mode <- function(v) {
@@ -114,6 +122,8 @@ data <- data %>% drop_na(TransportMeans)
 
 
 ```{r}
+#| echo: false
+#| message: false
 # Creating a function to count NA and empty strings as missing values
 count_missing <- function(x) sum(is.na(x) | x == "")
 # Calculating the missing values
@@ -121,7 +131,7 @@ missing_values <- sapply(data, function(x) count_missing(x))
 
 # Creating a dataframe for missing values
 missing_data_frame <- data.frame(Variable = names(missing_values), MissingValues = missing_values)
-missing_data_frame
+
 ```
 
 
@@ -136,6 +146,8 @@ missing_data_frame
 # 模型构建
 
 ```{r}
+#| echo: false
+#| message: false
 # Load necessary libraries
 library(tidyverse)
 library(caret)
@@ -158,6 +170,8 @@ Y_writing_train <- trainData$WritingScore
 ## add interation
 
 ```{r}
+#| echo: false
+#| message: false
 # Checking for interaction effects (example for math score)
 full_model_math_interaction <- lm(Y_math_train ~  (.)^2, data = X_train)
 full_model_reading_interaction <- lm(Y_reading_train ~  (.)^2, data = X_train)
@@ -170,6 +184,8 @@ full_model_writing_interaction <- lm(Y_writing_train ~  (.)^2, data = X_train)
 ## 模型选择
 
 ```{r}
+#| echo: false
+#| message: false
 # backward (compare)
 AICmodel_math_interaction = 
   step(full_model_math_interaction, trace = 0, direction='backward')
@@ -186,7 +202,8 @@ cat("BIC Model Parameters:", num_params_BICmodel, "\n")
 ```
 
 ```{r}
-
+#| echo: false
+#| message: false
 #此处解释因为bic做准则比aic的变量多，我们倾向选择变量少的
 model_math_interaction = AICmodel_math_interaction
 model_reading_interaction =
@@ -221,6 +238,8 @@ broom::tidy(model_writing_interaction) |>
 ```
 
 ```{r}
+#| echo: false
+#| message: false
 par(mfrow=c(2,2))
 plot(model_math_interaction) 
 mtext("Math Model Diagnostic", outer = TRUE, cex = 1, line = -1)
@@ -235,6 +254,8 @@ mtext("Writing Model Diagnostic", outer = TRUE, cex = 1, line = -1)
 
 
 ```{r}
+#| echo: false
+#| message: false
 # remove influential points from the residual and leverage plots
 X_train_math_Out =X_train[-c(49,181,557,642),]
 Y_math_train_Out=Y_math_train[-c(49,181,557,642)]
@@ -267,14 +288,30 @@ without_writing = lm(Y_writing_train_Out ~ Gender + EthnicGroup + ParentEduc +
     TestPrep:NrSiblings + ParentMaritalStatus:PracticeSport + 
     ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
     IsFirstChild:WklyStudyHours, data = X_train_writing_Out)
-summary(without_math)
-summary(without_reading)
-summary(without_writing)
+# results
+# r.squared..
+glance_math_new = broom::glance(without_math) |>
+  mutate(model = "Math") |>
+  select(model, r.squared, adj.r.squared, p.value, AIC, BIC) 
+
+glance_reading_new = broom::glance(without_reading ) |>
+  mutate(model = "Reading") |>
+  select(model, r.squared, adj.r.squared, p.value, AIC, BIC) 
+
+glance_writing_new = broom::glance(without_writing) |>
+  mutate(model = "Writing") |>
+  select(model, r.squared, adj.r.squared, p.value, AIC, BIC) 
+
+bind_rows(glance_math_new, glance_reading_new, glance_writing_new) |>
+  knitr::kable()
+
 ```
 
 ## multicolinearity-没有强烈的多重共线性问题
 
 ```{r}
+#| echo: false
+#| message: false
 # 计算方差膨胀因子（GVIF）
 vif_values_math <- vif(without_math , type = 'predictor')
 print(vif_values_math)
@@ -289,6 +326,8 @@ print(vif_values_reading)
 
 # cross validation
 ```{r}
+#| echo: false
+#| message: false
 library(caret)
 control <- trainControl(method = "cv", number = 10)
 set.seed(123)
@@ -339,6 +378,8 @@ print(writing_model_cv)
 ```
 
 ```{r}
+#| echo: false
+#| message: false
 library(readr)
 library(dplyr)
 library(ggplot2)
@@ -377,7 +418,7 @@ cv_df_math =
     rmse = map2_dbl(model, test, ~rmse(model = .x, data = .y)))
 
 # plot the prediction error
-cv_df_math |>
+plot_math <- cv_df_math |>
   select(rmse) |> 
   pivot_longer(
     everything(),
@@ -386,7 +427,6 @@ cv_df_math |>
   ggplot(aes(x = model, y = rmse)) + 
   geom_violin(fill = "blue", alpha = 0.5) +
   labs(
-    title = "Prediction Errors For Math Model Under CV",
     x = "MLR",
     y = "Prediction Errors"
   ) +
@@ -420,7 +460,7 @@ cv_df_reading =
     rmse = map2_dbl(model, test, ~rmse(model = .x, data = .y)))
 
 # plot the prediction error
-cv_df_reading |>
+plot_reading <- cv_df_reading |>
   select(rmse) |> 
   pivot_longer(
     everything(),
@@ -429,7 +469,6 @@ cv_df_reading |>
   ggplot(aes(x = model, y = rmse)) + 
   geom_violin(fill = "pink", alpha = 0.5) +
   labs(
-    title = "Prediction Errors For Reading Model Under CV",
     x = "MLR",
     y = "Prediction Errors"
   ) +
@@ -462,7 +501,7 @@ cv_df_writing =
     rmse = map2_dbl(model, test, ~rmse(model = .x, data = .y)))
 
 # plot the prediction error
-cv_df_writing |>
+plot_writing <-cv_df_writing |>
   select(rmse) |> 
   pivot_longer(
     everything(),
@@ -471,7 +510,6 @@ cv_df_writing |>
   ggplot(aes(x = model, y = rmse)) + 
   geom_violin(fill = "yellow", alpha = 0.5) +
   labs(
-    title = "Prediction Errors For Writing Model Under CV",
     x = "MLR",
     y = "Prediction Errors"
   ) +
@@ -481,6 +519,11 @@ cv_df_writing |>
     axis.text = element_text(color = "grey20"),
     axis.title = element_text(color = "grey20")
   )
+# 组合图形
+combined_plot <- plot_math + plot_reading + plot_writing+plot_annotation(title="Prediction Errors For Models Under CV")
+
+# 打印组合后的图形
+combined_plot
 ```
 
 
@@ -488,6 +531,8 @@ cv_df_writing |>
 # prediction
 
 ```{r}
+#| echo: false
+#| message: false
 # Splitting the train dataset into independent variables (X) and dependent variables (Y)
 X_test<- testData %>% select(-c(MathScore, ReadingScore, WritingScore))
 Y_math_test <- testData$MathScore
@@ -495,6 +540,8 @@ Y_reading_test <-testData$ReadingScore
 Y_writing_test <- testData$WritingScore
 ```
 ```{r}
+#| echo: false
+#| message: false
 final_math=lm(Y_math_train_Out ~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
     IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
@@ -525,12 +572,16 @@ final_writing=lm(Y_writing_train_Out ~ Gender + EthnicGroup + ParentEduc +
 
 
 ```{r}
+#| echo: false
+#| message: false
 math_predictions <- predict(final_math, newdata = X_test)
 reading_predictions <- predict(final_reading, newdata = X_test)
 writing_predictions <- predict(final_writing, newdata = X_test)
 ```
 
 ```{r}
+#| echo: false
+#| message: false
 math_mspe <- mean((Y_math_test - math_predictions)^2)
 reading_mspe <- mean((Y_reading_test - reading_predictions)^2)
 writing_mspe <- mean((Y_writing_test - writing_predictions)^2)
