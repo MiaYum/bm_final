@@ -1,7 +1,6 @@
 ---
 title: "Final Project"
 author: "Aiying Huang Mia Yu  Eunice Wang"
-date: "2023-12-20"
 output:
   pdf_document:
     latex_engine: xelatex
@@ -12,7 +11,7 @@ header-includes:
 fontsize: 12pt
 geometry: margin=1in
 ---
-\setstretch{2}  <!-- 设置两倍行间距 -->
+\setstretch{2}  
 
 # Abstract
 
@@ -98,12 +97,13 @@ Your content here.
 
 Your content here. 
 
-<!-- 创建新的一页 -->
+
 \newpage
 
 # Figures and Tables
 
-Figures and tables can be placed here.
+![](%22missingdata.png%22)
+![](%22cv.png%22)
 
 <!-- 创建新的一页 -->
 \newpage
@@ -116,7 +116,7 @@ Fox, J., & Monette, G. (1992). Generalized Collinearity Diagnostics. Journal of 
 
 Hyndman, R. J., & Athanasopoulos, G. (2018). Forecasting: Principles and Practice (2nd ed.). OTexts.
 
-<!-- 创建新的一页 -->
+
 \newpage
 
 # Appendix
