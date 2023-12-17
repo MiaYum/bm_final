@@ -175,8 +175,8 @@ corrplot(cramer_v_values, type = "upper", order = "hclust",
 ```
 （这个变量的解释）Cramér's V (for categorical variables) varies from 0 (corresponding to no association between the variables) to 1 (complete association) and can reach 1 only when each variable is completely determined by the other.
 
-这边有很多no relation的（很正常），但没有哪两个是colinear的
-这个heatmap感觉可以不用放了，很奇怪，最后直接到table就好？
+这边有很多no relation的（很正常），predicators没有哪两个是colinear的
+这边auto的话，会自动选这几种correlation的compare方法： Strength of association is calculated for nominal vs nominal with a bias corrected Cramer's V, numeric vs numeric with Spearman (default) or Pearson correlation, and nominal vs numeric with ANOVA.
 
 
 
