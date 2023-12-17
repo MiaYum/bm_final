@@ -1,0 +1,58 @@
+---
+title: "Final Project"
+author: "Aiying Huang Mis Yu  Eunice Wang"
+date: "2023-12-20"
+output:
+  pdf_document:
+    latex_engine: xelatex
+header-includes:
+  - \usepackage{setspace}
+  - \usepackage{fontspec}
+  - \setmainfont{Times New Roman}
+fontsize: 12pt
+geometry: margin=1in
+---
+\setstretch{2}  <!-- 设置两倍行间距 -->
+
+# Abstract
+
+ondenses a brief introduction, brief description of methods, and main results into a one-paragraph summary
+
+# Introduction
+
+brief context and background of the problem
+
+# Methods 
+
+data description and statistical methods
+
+# Results
+
+# Conclusions/Discussion
+
+Your content here. 
+
+# A brief summary on each group member’s contribution
+
+Your content here. 
+
+<!-- 创建新的一页 -->
+\newpage
+
+# Figures and Tables
+
+Figures and tables can be placed here.
+
+<!-- 创建新的一页 -->
+\newpage
+
+# References
+
+Reference list goes here.
+
+<!-- 创建新的一页 -->
+\newpage
+
+# Appendix
+
+Appendix content goes here.
