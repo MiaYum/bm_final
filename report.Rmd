@@ -1,6 +1,6 @@
 ---
 title: "Final Project"
-author: "Aiying Huang Mis Yu  Eunice Wang"
+author: "Aiying Huang Mia Yu  Eunice Wang"
 date: "2023-12-20"
 output:
   pdf_document:
