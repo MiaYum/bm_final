@@ -25,33 +25,21 @@ brief context and background of the problem
 
 ## Missing Value Treatment:
 
-The dataset exhibited minimal missing values, predominantly in qualitative variables such as EthnicGroup, ParentEduc, TestPrep, ParentMaritalStatus, PracticeSport, IsFirstChild, NrSiblings, and TransportMeans. Most variables had a low incidence of missing data (<10%), with the exception of TransportMeans. Given the qualitative nature of these variables, mode imputation was applied for all except TransportMeans. Samples still exhibiting missing values post-imputation were directly excluded. 
+Minimal missing values were observed, primarily in qualitative variables such as EthnicGroup, ParentEduc, TestPrep, and others. Mode imputation was used for all except TransportMeans, with samples still showing missing values after imputation excluded. 
 
 ## Model Assessment:
 
 ### Cook's Distance (Residual vs Leverage Plot)
 
-Cook's Distance and the Residual vs. Leverage Plot are tools used in regression analysis to identify influential observations that might unduly affect the model's parameters. Cook's Distance measures the influence of each observation on the fitted values, highlighting points that might be outliers or have a significant effect on the model's overall fit. 
+Cook's Distance, combined with the Residual vs. Leverage Plot, identifies influential observations in regression models. It measures each observation's impact on the fitted values to highlight potential outliers.
 
 $D_i = \frac{\sum_{j=1}^{n} (\hat{Y}_j - \hat{Y}_{j(i)})^2}{p MSE}.$
 
-where:
-$D_i$ represents the Cook's Distance for the $i^{th}$  observation.
-$\hat{Y}_j$ is the predicted value for the $j^{th}$observation, based on the model fitted with all data points.
-$\hat{Y}_{j(i)}$ is the predicted value for the$ j^{th}$ observation, based on the model fitted without the $ i^{th} $observation.
-p  is the number of parameters in the model.
-
-MSE is the Mean Squared Error, which is the average of the squared residuals of the model.
-The Residual vs. Leverage Plot helps to visualize these influential points, displaying residuals against leverage values. Points with high leverage and large residuals are often considered influential. 
-
 ### VIF (Variance Inflation Factor)
 
-Due to the categorical nature of the dataset variables and the presence of numerous interaction terms in our models, the traditional VIF was not adequate for assessing multicollinearity. Instead, we utilized the adjusted Generalized Variance Inflation Factor (GVIF).
+Adjusted Generalized Variance Inflation Factor (GVIF) was used instead of traditional VIF to assess multicollinearity, especially suitable for categorical variables and models with interaction terms.
 
 ${GVIF}^{(1 / (2 \times Df))} = \left( \frac{1}{1 - R^2_j} \right)^{(1 / (2 \times {Df}_j))}.$ 
-
-where:
-$R^2_j$ is the coefficient of determination for the explanatory variable j (which may be a categorical variable) in a regression model. $df_j$ is the degrees of freedom for the variable j. For categorical variables, the degrees of freedom are usually the number of categories minus one.
 
 An adjusted GVIF value ranging from 1 to 3 indicates no significant issues, while values exceeding 5 or 10 suggest notable multicollinearity. 
 
@@ -63,17 +51,9 @@ A 10-fold cross-validation approach was employed. This method involves partition
 
 ### The Mean Squared Prediction Errors (MSPE)
 
-The Mean Squared Prediction Error (MSPE) is a statistical measure used to evaluate the accuracy of a predictive model. It calculates the average of the squares of the prediction errors, where a prediction error is the difference between the observed values and the predicted values made by the model. MSPE is particularly useful in regression analysis and time series forecasting, as it provides a clear indication of how well a model predicts new data.
+The Mean Squared Prediction Error (MSPE) is a statistical measure used to evaluate the accuracy of a predictive model. It calculates the average of the squares of the prediction errors, where a prediction error is the difference between the observed values and the predicted values made by the model. 
 
 ${MSPE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2.$
-
-where:
-
-MSPE represents the Mean Squared Prediction Error.
-$\frac{1}{n}$ is the fraction representing the average over n observations.
-$\sum_{i=1}^{n}$ is the summation notation, summing over all n observations.
-$(y_i - \hat{y}_i)^2$ represents the squared difference between the actual value y_i and the predicted value$\hat{y}_i$ for each observation i.
-
 
 # Results
 
