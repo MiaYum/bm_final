@@ -71,7 +71,15 @@ ${MSPE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2.$
 
 To facilitate internal validity assessment in subsequent modeling, the data was split into a training set (80%) and a test set (20%).
 
-By using a backward elimination approach based on the AIC criterion on the full model with interaction terms, followed by penalization with the LASSO method, we derived three succinct and optimal models. Diagnostic plots for these models indicate no issues.
+By using a backward elimination approach based on the AIC criterion on the full model with interaction terms, followed by penalization with the LASSO method, we derived three succinct and optimal models:
+
+`MathScore ~  Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + TransportMeans + WklyStudyHours + Gender:PracticeSport + EthnicGroup:ParentEduc + ParentEduc:ParentMaritalStatus + + ParentEduc:PracticeSport + LunchType:PracticeSport + ParentMaritalStatus:TransportMeans + PracticeSport:WklyStudyHours`
+
+`ReadingScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + LunchType:PracticeSport + ParentMaritalStatus:PracticeSport + ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + NrSiblings:WklyStudyHours`
+
+`WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + ParentEduc:IsFirstChild + LunchType:PracticeSport + TestPrep:NrSiblings + ParentMaritalStatus:PracticeSport + ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + IsFirstChild:WklyStudyHours`
+
+Diagnostic plots for these models indicate no issues.
 
 Examination of the residual vs leverage plots for the three models revealed a few outlier observations, notably in samples 181 and 268. However, closer inspection showed that their leverage did not exceed 0.5, and Cook's distances were below 0.1. Additionally, no data entry anomalies were identified in these samples. Removing these samples and reconstructing the models showed negligible differences from the original models. Therefore, no adjustments were made, and the original data was used for modeling.
 
