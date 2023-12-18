@@ -151,6 +151,10 @@ knitr::include_graphics("Y's correlation.png")
 knitr::include_graphics("pairwise.png")
 ```
 
+```{r, echo=FALSE, fig.cap="heatmap", out.width='6in', fig.pos="H"}
+knitr::include_graphics("categoricalcorr.png")
+```
+
 ```{r, echo=FALSE, fig.cap="missingdata", fig.pos="H"}
 knitr::include_graphics("Missingdata.png")
 ```
