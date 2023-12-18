@@ -141,7 +141,7 @@ missing_data_frame <- data.frame(Variable = names(missing_values), MissingValues
 # 检查变量之间的边际分布和成对关系-correlation/pairwise-带修改完善
 ## Examine the marginal distributions and pairwise relationships between variables
 
-```{r}
+```{r, message=FALSE}
 # Load necessary libraries
 library(tidyverse)
 library(ggplot2) 
@@ -258,9 +258,7 @@ full_model_writing_interaction <- lm(Y_writing_train ~  (.)^2, data = X_train)
 ```
 
 
-
-
-## 模型选择
+## Model Selection
 
 ```{r}
 #| echo: false
@@ -317,143 +315,135 @@ broom::tidy(model_writing_interaction) |>
 ```
 
 ```{r}
-#| echo: false
-#| message: false
-par(mfrow=c(2,2))
-plot(model_math_interaction) 
-mtext("Math Model Diagnostic", outer = TRUE, cex = 1, line = -1)
+# try LASSO
+library(glmnet)
 
-plot(model_reading_interaction)
-mtext("Reading Model Diagnostic", outer = TRUE, cex = 1, line = -1)
+X_math <- model.matrix(~ Gender + EthnicGroup + ParentEduc + 
+                   LunchType + TestPrep + ParentMaritalStatus + 
+                   PracticeSport + IsFirstChild + NrSiblings + 
+                   TransportMeans + WklyStudyHours + 
+                   Gender:LunchType + Gender:PracticeSport + 
+                   EthnicGroup:ParentEduc + EthnicGroup:IsFirstChild + 
+                   ParentEduc:TestPrep + ParentEduc:ParentMaritalStatus + 
+                   ParentEduc:PracticeSport + ParentEduc:IsFirstChild + 
+                   LunchType:PracticeSport + LunchType:TransportMeans + 
+                   TestPrep:WklyStudyHours + ParentMaritalStatus:PracticeSport + ParentMaritalStatus:IsFirstChild + ParentMaritalStatus:TransportMeans + PracticeSport:WklyStudyHours + IsFirstChild:NrSiblings + IsFirstChild:TransportMeans + IsFirstChild:WklyStudyHours, 
+                   data = X_train)
+# cv
+cv_model <- cv.glmnet(X_math, Y_math_train, alpha = 1)
+best_lambda <- cv_model$lambda.min
+lasso_model <- glmnet(X_math, Y_math_train, alpha = 1, lambda = best_lambda)
 
-plot(model_writing_interaction)
-mtext("Writing Model Diagnostic", outer = TRUE, cex = 1, line = -1)
+coef(lasso_model)
+
+model_math_best = lm(Y_math_train ~  Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + TransportMeans + WklyStudyHours + Gender:PracticeSport + EthnicGroup:ParentEduc + ParentEduc:ParentMaritalStatus + + ParentEduc:PracticeSport + LunchType:PracticeSport + ParentMaritalStatus:TransportMeans + PracticeSport:WklyStudyHours, data = X_train)
 ```
-## Influential observations
-```{r}
-#| echo: false
-#| message: false
-par(mfrow=c(1,3))
-plot(model_math_interaction, which = 4)
-plot(model_reading_interaction, which = 4)
-plot(model_writing_interaction, which = 4)
-```
-
-
-从图中发现181，642可能是异常或者高影响值，但是除去之后建立模型发现差别不大，并且我们单独查看这两行数据也没有发现异常信息，于是最终模型还是保留以上数据。
-
 
 ```{r}
-#| echo: false
-#| message: false
-# remove influential points from the residual and leverage plots
-X_train_math_Out =X_train[-c(181,268),]
-Y_math_train_Out=Y_math_train[-c(181,268)]
-X_train_reading_Out =X_train[-c(181,268),]
-Y_reading_train_Out=Y_reading_train[-c(181,268)]
-X_train_writing_Out =X_train[-c(181,268),]
-Y_writing_train_Out=Y_writing_train[-c(181,268)]
-# fit model without influential points
-without_math = lm(Y_math_train_Out ~  Gender + EthnicGroup + ParentEduc + 
-    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
-    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
-    Gender:LunchType + Gender:PracticeSport + EthnicGroup:ParentEduc + 
-    EthnicGroup:IsFirstChild + ParentEduc:TestPrep + 
-    ParentEduc:PracticeSport + ParentEduc:IsFirstChild + LunchType:PracticeSport + 
-    LunchType:TransportMeans + TestPrep:WklyStudyHours + ParentMaritalStatus:PracticeSport + 
-    ParentMaritalStatus:IsFirstChild + ParentMaritalStatus:TransportMeans + 
-    PracticeSport:WklyStudyHours + IsFirstChild:NrSiblings + 
-    IsFirstChild:TransportMeans + IsFirstChild:WklyStudyHours, data = X_train_math_Out)
-without_reading = lm(Y_reading_train_Out ~ Gender + EthnicGroup + ParentEduc + 
+# reading LASSO
+
+X_reading <- model.matrix(~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
     IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
     Gender:IsFirstChild + LunchType:PracticeSport + LunchType:IsFirstChild + 
-    TestPrep:NrSiblings + TestPrep:TransportMeans + ParentMaritalStatus:PracticeSport + 
-    ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
-    NrSiblings:WklyStudyHours, data = X_train_reading_Out)
-without_writing = lm(Y_writing_train_Out ~ Gender + EthnicGroup + ParentEduc + 
+    TestPrep:NrSiblings + TestPrep:TransportMeans + ParentMaritalStatus:PracticeSport + ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + NrSiblings:WklyStudyHours, data = X_train)
+
+# cv
+cv_model <- cv.glmnet(X_reading, Y_reading_train, alpha = 1)
+best_lambda <- cv_model$lambda.min
+lasso_model <- glmnet(X_reading, Y_reading_train, alpha = 1, lambda = best_lambda)
+coef(lasso_model)
+
+model_reading_best = lm(Y_reading_train ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
+    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + LunchType:PracticeSport + ParentMaritalStatus:PracticeSport + ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + NrSiblings:WklyStudyHours, data = X_train)
+```
+
+```{r}
+X_writing <- model.matrix(~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
     IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
     ParentEduc:IsFirstChild + LunchType:PracticeSport + LunchType:IsFirstChild + 
     TestPrep:NrSiblings + ParentMaritalStatus:PracticeSport + 
     ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
-    IsFirstChild:WklyStudyHours, data = X_train_writing_Out)
-# results
-# r.squared..
-glance_math_new = broom::glance(without_math) |>
-  mutate(model = "Math") |>
-  select(model, r.squared, adj.r.squared, p.value, AIC, BIC) 
+    IsFirstChild:WklyStudyHours, data = X_train)
 
-glance_reading_new = broom::glance(without_reading ) |>
-  mutate(model = "Reading") |>
-  select(model, r.squared, adj.r.squared, p.value, AIC, BIC) 
+# cv
+cv_model <- cv.glmnet(X_writing, Y_writing_train, alpha = 1)
+best_lambda <- cv_model$lambda.min
+lasso_model <- glmnet(X_writing, Y_writing_train, alpha = 1, lambda = best_lambda)
+coef(lasso_model)
 
-glance_writing_new = broom::glance(without_writing) |>
-  mutate(model = "Writing") |>
-  select(model, r.squared, adj.r.squared, p.value, AIC, BIC) 
-
-bind_rows(glance_math_new, glance_reading_new, glance_writing_new) |>
-  knitr::kable()
-
+model_writing_best = lm(Y_writing_train ~ Gender + EthnicGroup + ParentEduc + 
+    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
+    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
+    ParentEduc:IsFirstChild + LunchType:PracticeSport + 
+    TestPrep:NrSiblings + ParentMaritalStatus:PracticeSport + 
+    ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
+    IsFirstChild:WklyStudyHours, data = X_train)
 ```
+
+```{r, message=FALSE, warning=FALSE}
+par(mfrow=c(2,2))
+plot(model_math_best) 
+mtext("Math Model Diagnostic", outer = TRUE, cex = 1, line = -1)
+
+plot(model_reading_best)
+mtext("Reading Model Diagnostic", outer = TRUE, cex = 1, line = -1)
+
+plot(model_writing_best)
+mtext("Writing Model Diagnostic", outer = TRUE, cex = 1, line = -1)
+```
+
+## Influential observations
+
+```{r}
+par(mfrow=c(1,3))
+plot(model_math_best, which = 4)
+plot(model_reading_best, which = 4)
+plot(model_writing_best, which = 4)
+```
+
+
+从图中发现181，642可能是异常或者高影响值，但是除去之后建立模型发现差别不大，并且我们单独查看这两行数据也没有发现异常信息，于是最终模型还是保留以上数据。
 
 ## multicolinearity-没有强烈的多重共线性问题
 
-```{r}
-#| echo: false
-#| message: false
-# 计算方差膨胀因子（GVIF）
-vif_values_math <- vif(model_math_interaction , type = 'predictor')
+```{r, warning=FALSE, message=FALSE}
+vif_values_math <- vif(model_math_best , type = 'predictor')
 print(vif_values_math)
-vif_values_writing <- vif(model_writing_interaction, type = 'predictor')
+vif_values_writing <- vif(model_writing_best, type = 'predictor')
 print(vif_values_writing)
-vif_values_reading <- vif(model_reading_interaction, type = 'predictor')
+vif_values_reading <- vif(model_reading_best, type = 'predictor')
 print(vif_values_reading)
-#没有强烈的多重共线性问题
 ```
 
 ## model validation
 
 # cross validation
-```{r}
+```{r, warning=FALSE}
 #| echo: false
 #| message: false
 library(caret)
 control <- trainControl(method = "cv", number = 10)
 set.seed(123)
-
 math_model_data <- cbind(X_train, Y_math_train)
-math_model_cv <- train( Y_math_train ~ Gender + EthnicGroup + ParentEduc + 
-    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
-    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
-    Gender:LunchType + Gender:PracticeSport + EthnicGroup:ParentEduc + 
-    EthnicGroup:IsFirstChild + ParentEduc:TestPrep + ParentEduc:ParentMaritalStatus + 
-    ParentEduc:PracticeSport + ParentEduc:IsFirstChild + LunchType:PracticeSport + 
-    LunchType:TransportMeans + TestPrep:WklyStudyHours + ParentMaritalStatus:PracticeSport + 
-    ParentMaritalStatus:IsFirstChild + ParentMaritalStatus:TransportMeans + 
-    PracticeSport:WklyStudyHours + IsFirstChild:NrSiblings + 
-    IsFirstChild:TransportMeans + IsFirstChild:WklyStudyHours, 
+math_model_cv <- train( Y_math_train ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + TransportMeans + WklyStudyHours + Gender:PracticeSport + EthnicGroup:ParentEduc + ParentEduc:ParentMaritalStatus + + ParentEduc:PracticeSport + LunchType:PracticeSport + ParentMaritalStatus:TransportMeans + PracticeSport:WklyStudyHours, 
     data = math_model_data, method = "lm", trControl = control)
 
 set.seed(124)
-
 reading_model_data <- cbind(X_train, Y_reading_train)
 reading_model_cv <- train(Y_reading_train ~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
-    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
-    Gender:IsFirstChild + LunchType:PracticeSport + LunchType:IsFirstChild + 
-    TestPrep:NrSiblings + TestPrep:TransportMeans + ParentMaritalStatus:PracticeSport + 
-    ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
-    NrSiblings:WklyStudyHours, data = reading_model_data, 
+    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + LunchType:PracticeSport + ParentMaritalStatus:PracticeSport + ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + NrSiblings:WklyStudyHours, data = reading_model_data,
     method = "lm", trControl = control)
 
 set.seed(125)
-
 writing_model_data <- cbind(X_train, Y_writing_train)
 writing_model_cv <- train(Y_writing_train ~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
     IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
-    ParentEduc:IsFirstChild + LunchType:PracticeSport + LunchType:IsFirstChild + 
+    ParentEduc:IsFirstChild + LunchType:PracticeSport + 
     TestPrep:NrSiblings + ParentMaritalStatus:PracticeSport + 
     ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
     IsFirstChild:WklyStudyHours, data = writing_model_data, 
@@ -468,8 +458,6 @@ print(writing_model_cv)
 ```
 
 ```{r}
-#| echo: false
-#| message: false
 library(readr)
 library(dplyr)
 library(ggplot2)
@@ -495,16 +483,7 @@ cv_df_math =
 cv_df_math =
   cv_df_math |> 
   mutate(
-    model  = map(train, ~lm( Y_math_train ~ Gender + EthnicGroup + ParentEduc + 
-    LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
-    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
-    Gender:LunchType + Gender:PracticeSport + EthnicGroup:ParentEduc + 
-    EthnicGroup:IsFirstChild + ParentEduc:TestPrep + ParentEduc:ParentMaritalStatus + 
-    ParentEduc:PracticeSport + ParentEduc:IsFirstChild + LunchType:PracticeSport + 
-    LunchType:TransportMeans + TestPrep:WklyStudyHours + ParentMaritalStatus:PracticeSport + 
-    ParentMaritalStatus:IsFirstChild + ParentMaritalStatus:TransportMeans + 
-    PracticeSport:WklyStudyHours + IsFirstChild:NrSiblings + 
-    IsFirstChild:TransportMeans + IsFirstChild:WklyStudyHours, 
+    model  = map(train, ~lm( Y_math_train ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + TransportMeans + WklyStudyHours + Gender:PracticeSport + EthnicGroup:ParentEduc + ParentEduc:ParentMaritalStatus + + ParentEduc:PracticeSport + LunchType:PracticeSport + ParentMaritalStatus:TransportMeans + PracticeSport:WklyStudyHours, 
     data = math_model_data)),
     rmse = map2_dbl(model, test, ~rmse(model = .x, data = .y)))
 
@@ -543,11 +522,7 @@ cv_df_reading =
   mutate(
     model  = map(train, ~lm(Y_reading_train ~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
-    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
-    Gender:IsFirstChild + LunchType:PracticeSport + LunchType:IsFirstChild + 
-    TestPrep:NrSiblings + TestPrep:TransportMeans + ParentMaritalStatus:PracticeSport + 
-    ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
-    NrSiblings:WklyStudyHours, data = reading_model_data)),
+    IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + LunchType:PracticeSport + ParentMaritalStatus:PracticeSport + ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + NrSiblings:WklyStudyHours, data = reading_model_data)),
     rmse = map2_dbl(model, test, ~rmse(model = .x, data = .y)))
 
 # plot the prediction error
@@ -585,7 +560,7 @@ cv_df_writing =
     model  = map(train, ~lm(Y_writing_train ~ Gender + EthnicGroup + ParentEduc + 
     LunchType + TestPrep + ParentMaritalStatus + PracticeSport + 
     IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + 
-    ParentEduc:IsFirstChild + LunchType:PracticeSport + LunchType:IsFirstChild + 
+    ParentEduc:IsFirstChild + LunchType:PracticeSport + 
     TestPrep:NrSiblings + ParentMaritalStatus:PracticeSport + 
     ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
     IsFirstChild:WklyStudyHours, data = writing_model_data)),
@@ -610,11 +585,9 @@ plot_writing <-cv_df_writing |>
     axis.text = element_text(color = "grey20"),
     axis.title = element_text(color = "grey20")
   )
-# 组合图形
-combined_plot <- plot_math + plot_reading + plot_writing+plot_annotation(title="Prediction Errors For Models Under CV")
 
-# 打印组合后的图形
-combined_plot
+plot_math + plot_reading + 
+  plot_writing+plot_annotation(title="Prediction Errors For Models Under CV")
 ```
 
 
@@ -622,35 +595,22 @@ combined_plot
 # prediction
 
 ```{r}
-#| echo: false
-#| message: false
 # Splitting the train dataset into independent variables (X) and dependent variables (Y)
 X_test<- testData %>% select(-c(MathScore, ReadingScore, WritingScore))
 Y_math_test <- testData$MathScore
 Y_reading_test <-testData$ReadingScore
 Y_writing_test <- testData$WritingScore
 ```
-```{r}
-#| echo: false
-#| message: false
-final_math=model_math_interaction
-final_reading=model_reading_interaction
-final_writing=model_writing_interaction
+
+
+```{r, warning=FALSE}
+math_predictions <- predict(model_math_best, newdata = X_test)
+reading_predictions <- predict(model_reading_best, newdata = X_test)
+writing_predictions <- predict(model_writing_best, newdata = X_test)
 ```
 
 
-
 ```{r}
-#| echo: false
-#| message: false
-math_predictions <- predict(final_math, newdata = X_test)
-reading_predictions <- predict(final_reading, newdata = X_test)
-writing_predictions <- predict(final_writing, newdata = X_test)
-```
-
-```{r}
-#| echo: false
-#| message: false
 math_mspe <- mean((Y_math_test - math_predictions)^2)
 reading_mspe <- mean((Y_reading_test - reading_predictions)^2)
 writing_mspe <- mean((Y_writing_test - writing_predictions)^2)
