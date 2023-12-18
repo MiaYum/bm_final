@@ -25,29 +25,24 @@ brief context and background of the problem
 
 ## Missing Value Treatment:
 
-Minimal missing values were observed, primarily in qualitative variables such as EthnicGroup, ParentEduc, TestPrep, and others. Mode imputation was used for all except TransportMeans, with samples still showing missing values after imputation excluded. 
-
-## Model Assessment:
+Minimal missing values were observed as figure 1, primarily in qualitative variables such as EthnicGroup, ParentEduc, TestPrep, and others. Mode imputation was used for all except TransportMeans, with samples still showing missing values after imputation excluded. 
 
 ## Model Selection:
 
-Although correlations among variables were not evident, the inclusion of interaction terms is justified based on theoretical and practical grounds. Full models incorporating all 11 predictors and their pairwise interactions were developed. Subsequent analysis will focus on choosing a simpler variable subset to reduce overfitting risks.
+### LASSO(Least Absolute Shrinkage and Selection Operator)
 
-Initially, we combined automated methods and criteria-based selection, using both AIC and BIC for model choice. The AIC criterion, yielding fewer variables, was preferred for backward elimination.
+LASSO ($\min_{\beta} \left( \frac{1}{N} \sum_{i=1}^{N} (y_i - \beta_0 - \sum_{j=1}^{p} x_{ij} \beta_j)^2 + \lambda \sum_{j=1}^{p} |\beta_j| \right)$), introduced by Robert Tibshirani in 1996, is a regression method that enhances model accuracy and interpretability by performing variable selection and regularization. Ideal for models with numerous predictors or high collinearity, LASSO shrinks some coefficients to zero, thus simplifying the model by penalizing the sum of absolute parameter values.
 
-Due to retaining too many variables, we applied LASSO for penalization, using cross-validation to find the optimal lambda. Interaction terms with shrinkage coefficients below 0.5 were removed, resulting in three more efficient, nested models.
+## Model Assessment:
 
 ### Cook's Distance (Residual vs Leverage Plot)
 
-Cook's Distance, combined with the Residual vs. Leverage Plot, identifies influential observations in regression models. It measures each observation's impact on the fitted values to highlight potential outliers.
+Cook's Distance($D_i = \frac{\sum_{j=1}^{n} (\hat{Y}_j - \hat{Y}_{j(i)})^2}{p MSE}.$), combined with the Residual vs. Leverage Plot, identifies influential observations in regression models. It measures each observation's impact on the fitted values to highlight potential outliers.
 
-$D_i = \frac{\sum_{j=1}^{n} (\hat{Y}_j - \hat{Y}_{j(i)})^2}{p MSE}.$
 
 ### VIF (Variance Inflation Factor)
 
-Adjusted Generalized Variance Inflation Factor (GVIF) was used instead of traditional VIF to assess multicollinearity, especially suitable for categorical variables and models with interaction terms.
-
-${GVIF}^{(1 / (2 \times Df))} = \left( \frac{1}{1 - R^2_j} \right)^{(1 / (2 \times {Df}_j))}.$ 
+Adjusted Generalized Variance Inflation Factor (${GVIF}^{(1 / (2 \times Df))} = \left( \frac{1}{1 - R^2_j} \right)^{(1 / (2 \times {Df}_j))}.$ ) was used instead of traditional VIF to assess multicollinearity, especially suitable for categorical variables and models with interaction terms.
 
 An adjusted GVIF value ranging from 1 to 3 indicates no significant issues, while values exceeding 5 or 10 suggest notable multicollinearity. 
 
@@ -59,9 +54,7 @@ A 10-fold cross-validation approach was employed. This method involves partition
 
 ### The Mean Squared Prediction Errors (MSPE)
 
-The Mean Squared Prediction Error (MSPE) is a statistical measure used to evaluate the accuracy of a predictive model. It calculates the average of the squares of the prediction errors, where a prediction error is the difference between the observed values and the predicted values made by the model. 
-
-${MSPE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2.$
+The Mean Squared Prediction Error (${MSPE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2.$) is a statistical measure used to evaluate the accuracy of a predictive model. It calculates the average of the squares of the prediction errors, where a prediction error is the difference between the observed values and the predicted values made by the model. 
 
 # Results
 
@@ -71,22 +64,17 @@ ${MSPE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2.$
 
 To facilitate internal validity assessment in subsequent modeling, the data was split into a training set (80%) and a test set (20%).
 
-By using a backward elimination approach based on the AIC criterion on the full model with interaction terms, followed by penalization with the LASSO method, we derived three succinct and optimal models:
+Despite the lack of evident correlations among variables, interaction terms were included in the full models based on theoretical and practical considerations. These models encompassed all 11 predictors with their pairwise interactions, aiming to further simplify the variable subset to mitigate overfitting risks.
 
-`MathScore ~  Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + TransportMeans + WklyStudyHours + Gender:PracticeSport + EthnicGroup:ParentEduc + ParentEduc:ParentMaritalStatus + + ParentEduc:PracticeSport + LunchType:PracticeSport + ParentMaritalStatus:TransportMeans + PracticeSport:WklyStudyHours`
-
-`ReadingScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + LunchType:PracticeSport + ParentMaritalStatus:PracticeSport + ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + NrSiblings:WklyStudyHours`
-
-`WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + ParentEduc:IsFirstChild + LunchType:PracticeSport + TestPrep:NrSiblings + ParentMaritalStatus:PracticeSport + ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + IsFirstChild:WklyStudyHours`
+Utilizing a combination of automated methods and criteria-based selection, the model refinement process began with backward elimination guided by the AIC criterion, which favored fewer variables. However, this approach initially retained too many variables. Consequently, we employed LASSO penalization, complemented by cross-validation to determine the optimal lambda. This led to the removal of interaction terms with shrinkage coefficients under 0.5, yielding three more efficient, nested models. (see in appendix)
 
 Diagnostic plots for these models indicate no issues.
 
-Examination of the residual vs leverage plots for the three models revealed a few outlier observations, notably in samples 181 and 268. However, closer inspection showed that their leverage did not exceed 0.5, and Cook's distances were below 0.1. Additionally, no data entry anomalies were identified in these samples. Removing these samples and reconstructing the models showed negligible differences from the original models. Therefore, no adjustments were made, and the original data was used for modeling.
+Examination of the residual vs leverage plots for the three models revealed a few outlier observations, notably in samples 181 and 268 according to figure 2. However, closer inspection showed that their leverage did not exceed 0.5, and Cook's distances were below 0.1. Additionally, no data entry anomalies were identified in these samples. Removing these samples and reconstructing the models showed negligible differences from the original models. Therefore, no adjustments were made, and the original data was used for modeling.
 
 As for the multicollinearity check, we found no substantial multicollinearity concerns in any of the model variables.
 
-The cross-validation results indicated that the RMSE for the Math model was concentrated around 11, while for the Reading and Writing models, RMSE values were centered around 12.5. To test for potential overfitting, the initially separated test data was employed to evaluate the predictive performance of the models. The Mean Squared Prediction Errors (MSPE) for the Math, Reading, and Writing models were 256.9196, 134.7220, and 127.4526, respectively. Contrary to the RMSE results, the Math model exhibited a lower performance compared to the Reading and Writing models. Given that the Math model incorporated the most predictors, it suggests a potential issue with overfitting.
-
+The cross-validation results indicated that the RMSE for the Math model was concentrated around 12, while for the Reading and Writing models, RMSE values were centered around 12.5, according to figure 3. To test for potential overfitting, the initially separated test data was employed to evaluate the predictive performance of the models. The Mean Squared Prediction Errors (MSPE) for the Math, Reading, and Writing models were 198.3466, 152.9267, and 142.8281, respectively. Contrary to the RMSE results, the Math model exhibited a lower performance compared to the Reading and Writing models. Given that the Math model incorporated the most predictors, it suggests a potential issue with overfitting.
 
 # Conclusions/Discussion
 
@@ -96,22 +84,116 @@ Your content here.
 
 Your content here. 
 
+\newpage
+
+# Figures
+
+```{r, echo=FALSE, fig.cap="Ys' distribution", out.width='6in'}
+knitr::include_graphics("Y'distribution.png")
+```
+
+
+```{r, echo=FALSE, fig.cap="Ys' correlation", out.width='6in'}
+knitr::include_graphics("Y's correlation.png")
+```
+```{r, echo=FALSE, fig.cap="pairwise", out.width='6in'}
+knitr::include_graphics("pairwise.png")
+```
+
+```{r, echo=FALSE, fig.cap="missingdata"}
+knitr::include_graphics("Missingdata.png")
+```
+
+```{r, echo=FALSE, fig.cap="math", out.width='7in'}
+knitr::include_graphics("math.png")
+```
+
+```{r, echo=FALSE, fig.cap="reading", out.width='7in'}
+knitr::include_graphics("reading.png")
+```
+
+```{r, echo=FALSE, fig.cap="writing", out.width='7in'}
+knitr::include_graphics("writing.png")
+```
+
+```{r, echo=FALSE, fig.cap="Cook's Distance", out.width='8in'}
+knitr::include_graphics("cookdistance.png")
+```
+
+```{r, echo=FALSE, fig.cap="CV outcome"}
+knitr::include_graphics("cv.png")
+```
 
 \newpage
 
-# Figures and Tables
+# Tables
 
-![](%22missingdata.png%22)
-![](%22cv.png%22)
+```{r table-mspe_values, echo=FALSE}
+mspe_values <- data.frame(
+  Subject = c("Math", "Reading", "Writing"),
+  MSPE = c(198.3466, 152.9267, 142.828)
+)
+knitr::kable(mspe_values, col.names = c("Subject", "MSPE"), caption = "MSPE Values for Different Subjects")
+```
 
-<!-- 创建新的一页 -->
+```{r table-math, echo=FALSE}
+#| echo: false
+#| message: false
+library(dplyr)
+# Your provided data frames
+vif_values_math <- data.frame(
+  Predictor = c("Gender", "EthnicGroup", "ParentEduc", "LunchType", "TestPrep", "ParentMaritalStatus",
+                "PracticeSport", "TransportMeans", "WklyStudyHours"),
+  GVIF = c(1.655040, 1.353349, 1.081339, 1.643025, 1.074470, 1.331176, 1.357566, 1.516250, 1.366449)
+)
+
+
+knitr::kable(vif_values_math, caption = "Variance Inflation Factors for Math Model", 
+      col.names = c("Predictor", "GVIF"), 
+      format = "latex", booktabs = TRUE)
+
+```
+
+```{r table-writing, echo=FALSE}
+vif_values_writing <- data.frame(
+  Predictor = c("Gender", "EthnicGroup", "ParentEduc", "LunchType", "TestPrep", "ParentMaritalStatus",
+                "PracticeSport", "IsFirstChild", "NrSiblings", "TransportMeans", "WklyStudyHours"),
+  GVIF = c(1.042331, 1.041528, 1.157013, 1.659319, 1.040662, 1.183376, 1.200553, 1.339793, 1.040662, 
+           1.034014, 1.413038)
+)
+# Writing Model VIF Values
+knitr::kable(vif_values_writing, caption = "Variance Inflation Factors for Writing Model", 
+      col.names = c("Predictor", "GVIF"), 
+      format = "latex", booktabs = TRUE)
+```
+
+```{r table-reading, echo=FALSE}
+vif_values_reading <- data.frame(
+  Predictor = c("Gender", "EthnicGroup", "ParentEduc", "LunchType", "TestPrep", "ParentMaritalStatus",
+                "PracticeSport", "IsFirstChild", "NrSiblings", "TransportMeans", "WklyStudyHours"),
+  GVIF = c(1.036102, 1.039638, 1.032325, 1.648075, 1.044683, 1.117825, 1.199588, 1.619041, 1.608364, 
+           1.034064, 1.255155)
+)
+# Reading Model VIF Values
+knitr::kable(vif_values_reading, caption = "Variance Inflation Factors for Reading Model", 
+      col.names = c("Predictor", "GVIF"), 
+      format = "latex", booktabs = TRUE)
+```
+
+
+
+
+
+
 \newpage
 
-# References（我用的APA）
+# References
 
 Bollinger, G. (1981). Book Review: Regression Diagnostics: Identifying Influential Data and Sources of Collinearity. Journal of Marketing Research, 18(3), 392-393. https://doi.org/10.1177/002224378101800318
 
 Fox, J., & Monette, G. (1992). Generalized Collinearity Diagnostics. Journal of the American Statistical Association, 87(417), 178-183. https://doi.org/10.2307/2290467
+
+Tibshirani, R. (1996). Regression shrinkage and selection via the Lasso. Journal of the Royal Statistical Society. Series B (Methodological), 58(1), 267-288.
 
 Hyndman, R. J., & Athanasopoulos, G. (2018). Forecasting: Principles and Practice (2nd ed.). OTexts.
 
@@ -120,4 +202,11 @@ Hyndman, R. J., & Athanasopoulos, G. (2018). Forecasting: Principles and Practic
 
 # Appendix
 
-Appendix content goes here.
+## Three final regression models-看要不要加有coefficient的版本
+
+`MathScore ~  Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + TransportMeans + WklyStudyHours + Gender:PracticeSport + EthnicGroup:ParentEduc + ParentEduc:ParentMaritalStatus + + ParentEduc:PracticeSport + LunchType:PracticeSport + ParentMaritalStatus:TransportMeans + PracticeSport:WklyStudyHours`
+
+`ReadingScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + LunchType:PracticeSport + ParentMaritalStatus:PracticeSport + ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + NrSiblings:WklyStudyHours`
+
+`WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + ParentEduc:IsFirstChild + LunchType:PracticeSport + TestPrep:NrSiblings + ParentMaritalStatus:PracticeSport + ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + IsFirstChild:WklyStudyHours`
+

@@ -138,7 +138,7 @@ missing_data_frame <- data.frame(Variable = names(missing_values), MissingValues
 
 
 
-# 检查变量之间的边际分布和成对关系-correlation/pairwise-带修改完善
+# 检查变量之间的边际分布和成对关系-correlation/pairwise
 ## Examine the marginal distributions and pairwise relationships between variables
 
 ```{r, message=FALSE}
@@ -178,45 +178,6 @@ corrplot(cramer_v_values, type = "upper", order = "hclust",
 这边有很多no relation的（很正常），predicators没有哪两个是colinear的
 这边auto的话，会自动选这几种correlation的compare方法： Strength of association is calculated for nominal vs nominal with a bias corrected Cramer's V, numeric vs numeric with Spearman (default) or Pearson correlation, and nominal vs numeric with ANOVA.
 
-#########或许可以？###################################################################################
-```{r}
-#| echo: false
-#| message: false
-# 加载必要的库
-library(dplyr)
-library(purrr)
-data$NrSiblings <- as.character(data$NrSiblings)
-# 列出所有字符变量的名字
-char_vars <- names(data)[sapply(data, is.character)]
-
-# 生成所有可能的变量对组合
-var_combinations <- combn(char_vars, 2, simplify = FALSE)
-
-# 对每一对变量进行Fisher精确检验
-fisher_results <- map_dfr(var_combinations, ~{
-  # 提取变量对
-  var_pair <- .x
-
-  # 从数据框中提取这两个变量
-  tbl <- data %>% select(all_of(var_pair)) %>% na.omit()
-
-  # 进行Fisher精确检验
- test_result <- fisher.test(tbl[[1]], tbl[[2]], simulate.p.value=TRUE)
-
-
-# 返回变量对和对应的P值
-  tibble(
-    variable1 = var_pair[1],
-    variable2 = var_pair[2],
-    p_value = test_result$p.value
-  )
-}) %>% 
-  # 筛选显著的检验结果
-  filter(p_value < 0.05)
-
-# 查看显著的检验结果
-fisher_results
-```
 
 ```{r}
 #| echo: false
@@ -234,9 +195,7 @@ X_train <- trainData %>% select(-c(MathScore, ReadingScore, WritingScore))
 Y_math_train <- trainData$MathScore
 Y_reading_train <-trainData$ReadingScore
 Y_writing_train <- trainData$WritingScore
-lm(Y_math_train ~ ., data = X_train)
-vif_values_math <- vif(lm(Y_math_train ~ ., data = X_train) )
-print(vif_values_math)
+
 ```
 
 即使两个变量之间存在统计关联，也不一定意味着它们会导致严重的多重共线性。例如，两个变量可能在某些类别上有统计关联，但它们的整体线性关系可能不强。所以都纳入模型
@@ -492,7 +451,7 @@ plot_math <- cv_df_math |>
   ggplot(aes(x = model, y = rmse)) + 
   geom_violin(fill = "blue", alpha = 0.5) +
   labs(
-    x = "MLR",
+    x = "Math",
     y = "Prediction Errors"
   ) +
   theme_minimal() +
@@ -530,7 +489,7 @@ plot_reading <- cv_df_reading |>
   ggplot(aes(x = model, y = rmse)) + 
   geom_violin(fill = "pink", alpha = 0.5) +
   labs(
-    x = "MLR",
+    x = "Reading",
     y = "Prediction Errors"
   ) +
   theme_minimal() +
@@ -571,7 +530,7 @@ plot_writing <-cv_df_writing |>
   ggplot(aes(x = model, y = rmse)) + 
   geom_violin(fill = "yellow", alpha = 0.5) +
   labs(
-    x = "MLR",
+    x = "Writing",
     y = "Prediction Errors"
   ) +
   theme_minimal() +
