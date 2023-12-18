@@ -1,6 +1,5 @@
 ---
 title: "Final Project"
-author: "Aiying Huang Mia Yu  Eunice Wang"
 output:
   pdf_document:
     latex_engine: xelatex
