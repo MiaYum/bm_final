@@ -3,6 +3,7 @@ title: "Final Project"
 output:
   pdf_document:
     latex_engine: xelatex
+    extra_dependencies: ["float"]
 header-includes:
   - \usepackage{setspace}
   - \usepackage{fontspec}
@@ -85,47 +86,43 @@ Your content here.
 
 \newpage
 
-# Figures
+# Figures and Tables
 
-```{r, echo=FALSE, fig.cap="Ys' distribution", out.width='6in'}
+```{r, echo=FALSE, fig.cap="Ys' distribution", out.width='6in', fig.pos="H"}
 knitr::include_graphics("Y'distribution.png")
 ```
 
-
-```{r, echo=FALSE, fig.cap="Ys' correlation", out.width='6in'}
+```{r, echo=FALSE, fig.cap="Ys' correlation", out.width='6in', fig.pos="H"}
 knitr::include_graphics("Y's correlation.png")
 ```
-```{r, echo=FALSE, fig.cap="pairwise", out.width='6in'}
+
+```{r, echo=FALSE, fig.cap="pairwise", out.width='6in', fig.pos="H"}
 knitr::include_graphics("pairwise.png")
 ```
 
-```{r, echo=FALSE, fig.cap="missingdata"}
+```{r, echo=FALSE, fig.cap="missingdata", fig.pos="H"}
 knitr::include_graphics("Missingdata.png")
 ```
 
-```{r, echo=FALSE, fig.cap="math", out.width='7in'}
+```{r, echo=FALSE, fig.cap="math", out.width='7in', fig.pos="H"}
 knitr::include_graphics("math.png")
 ```
 
-```{r, echo=FALSE, fig.cap="reading", out.width='7in'}
+```{r, echo=FALSE, fig.cap="reading", out.width='7in', fig.pos="H"}
 knitr::include_graphics("reading.png")
 ```
 
-```{r, echo=FALSE, fig.cap="writing", out.width='7in'}
+```{r, echo=FALSE, fig.cap="writing", out.width='7in', fig.pos="H"}
 knitr::include_graphics("writing.png")
 ```
 
-```{r, echo=FALSE, fig.cap="Cook's Distance", out.width='8in'}
+```{r, echo=FALSE, fig.cap="Cook's Distance", out.width='8in', fig.pos="H"}
 knitr::include_graphics("cookdistance.png")
 ```
 
-```{r, echo=FALSE, fig.cap="CV outcome"}
+```{r, echo=FALSE, fig.cap="CV outcome", out.width='8in', fig.pos="H"}
 knitr::include_graphics("cv.png")
 ```
-
-\newpage
-
-# Tables
 
 ```{r table-mspe_values, echo=FALSE}
 mspe_values <- data.frame(
@@ -180,10 +177,6 @@ knitr::kable(vif_values_reading, caption = "Variance Inflation Factors for Readi
 ```
 
 
-
-
-
-
 \newpage
 
 # References
@@ -194,8 +187,7 @@ Fox, J., & Monette, G. (1992). Generalized Collinearity Diagnostics. Journal of 
 
 Tibshirani, R. (1996). Regression shrinkage and selection via the Lasso. Journal of the Royal Statistical Society. Series B (Methodological), 58(1), 267-288.
 
-Hyndman, R. J., & Athanasopoulos, G. (2018). Forecasting: Principles and Practice (2nd ed.). OTexts.
-
+Hyndman, R. J., & Athanasopoulos, G. (2018). Forecasting: Principles and Practice (2nd ed.).OTexts.
 
 \newpage
 
