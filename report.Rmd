@@ -19,9 +19,60 @@ a brief introduction, brief description of methods, and main results into a one-
 
 # Introduction
 
-brief context and background of the problem
+This project is based on a dataset which includes three test scores (math, reading and writing) of students at a public school and a variety of personal and socio-economic factors that may have interaction effects upon them. We want to use these factors as the covariates to predict Math, Reading and Writing scores.
 
 # Methods (data description and statistical methods)
+
+## Data Description and Visualization
+There are a total of 14 variables(including 3 response variables[12-14] and 11 predictor variables[1-11]) with 948 observations in this dataset. The variables and description is listed below:
+
+1. Gender: Gender of the student (male/female)
+
+2. EthnicGroup: Ethnic group of the student (group A to E)
+
+3. ParentEduc: Parent(s) education background (from some_highschool to master's degree)
+
+4. LunchType: School lunch type (standard or free/reduced)
+
+5. TestPrep: Test preparation course followed (completed or none)
+
+6. ParentMaritalStatus: Parent(s) marital status (married/single/widowed/divorced)
+
+7. PracticeSport: How often the student parctice sport (never/sometimes/regularly))
+
+8. IsFirstChild: If the child is first child in the family or not (yes/no)
+
+9. NrSiblings: Number of siblings the student has (0 to 7)
+
+10. TransportMeans: Means of transport to school (schoolbus/private)
+
+11. WklyStudyHours: Weekly self-study hours(less that 5hrs; between 5 and 10hrs; more than 10hrs)
+
+12. MathScore: math test score(0-100)
+
+13. ReadingScore: reading test score(0-100)
+
+14. WritingScore: writing test score(0-100)
+
+The 11 predictor variables[1-11] are categorical variables and the 3 response variables[12-14] are continuous variables. 
+
+The 3 response variables all have a relatively symmetric distributions with several outliers.(See figure 1)
+
+## Marginal Distributions and Pairwise Relationship 
+From the pariplot of marginal distributions, we can see that there is no obvious nonlinearities.(See figure 3)
+
+## Correlation between varibales
+We use the following methods to assess the strength of correlation:
+
+For categorical vs categorical variables, we use Cramer's V correlation.
+
+For continuous vs continuous variables, we use Pearson correlation.
+
+For categorical vs continuous variables, we use ANOVA(mcor).
+
+This correlation coefficient all varies from 0 (corresponding to no association between the variables) to 1 (complete association) and can reach 1 only when each variable is completely determined by the other.
+
+From the table and the heatmap we generated, we can see that there is no colinearities exist between response variables and explanatory variables. There are also colinearities exist within 11 explanatory variables. However, there is a high correlation between the 3 response variables.Each explanatory are correlated with the other two with a correlation coefficient higher than 0.8.
 
 ## Missing Value Treatment:
 
@@ -58,9 +109,9 @@ The Mean Squared Prediction Error (${MSPE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \
 
 # Results
 
-描述性统计部分结果。+After missing value treatment, we left 846 samples for further analysis. 
+There are a total of 14 variables(including 3 response, continuouse variables[12-14] and 11 predictor, categorical variables[1-11]) with 948 observations in this dataset. After missing value treatment, we left 846 obserbvations for further analysis. The 3 response variables all have a relatively symmetric distributions with several outliers.
 
-相关性部分结果。
+There is no colinearities exist between response variables and explanatory variables, and within 11 explanatory variables. However, there is a high correlation between the 3 response variables.Each explanatory are correlated with the other two with a correlation coefficient higher than 0.8.
 
 To facilitate internal validity assessment in subsequent modeling, the data was split into a training set (80%) and a test set (20%).
 
