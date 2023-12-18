@@ -82,7 +82,7 @@ Your content here.
 
 # A brief summary on each group member’s contribution
 
-Your content here. 
+Aiying Huang (ah4167) notably contributed to the project by handling literature research for methods, model construction and validation, and structuring the final report. Mia Yu (my2838) played a key role in model selection, additional methods research, and enhancing model diagnostics. Eunice Wang (cw3555) was crucial in initial data analysis, variable selection, relationship exploration, and writing the report's introduction and conclusion.
 
 \newpage
 
