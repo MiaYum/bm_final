@@ -242,34 +242,23 @@ print(vif_values_math)
 即使两个变量之间存在统计关联，也不一定意味着它们会导致严重的多重共线性。例如，两个变量可能在某些类别上有统计关联，但它们的整体线性关系可能不强。所以都纳入模型
 #####################################################################################################
 
-# 模型构建
+# Model Selection
 
-
-
-## add interation
+Despite the absence of discernible linear correlations among the variables, the inclusion of interaction terms is justified, guided by prior theoretical knowledge and practical considerations.
 
 ```{r}
-#| echo: false
-#| message: false
 # Checking for interaction effects (example for math score)
 full_model_math_interaction <- lm(Y_math_train ~  (.)^2, data = X_train)
 full_model_reading_interaction <- lm(Y_reading_train ~  (.)^2, data = X_train)
 full_model_writing_interaction <- lm(Y_writing_train ~  (.)^2, data = X_train)
-```
 
-
-## Model Selection
-
-```{r}
-#| echo: false
-#| message: false
-# backward (compare)
+# backward modeling(compare)
 AICmodel_math_interaction = 
   step(full_model_math_interaction, trace = 0, direction='backward')
 BICmodel_math_interaction = 
   step(full_model_math_interaction, scale = log(nrow(X_train)), trace = 0, direction='backward')
 
-#参数全部输出有点太多了，仅仅输出参数数量进行对比
+# show parameter numbers
 num_params_AICmodel <- length(coef(AICmodel_math_interaction))
 num_params_BICmodel <- length(coef(BICmodel_math_interaction))
 
@@ -278,10 +267,10 @@ cat("BIC Model Parameters:", num_params_BICmodel, "\n")
 
 ```
 
+Consequently, a comprehensive model was formulated, encompassing all 11 independent variables along with their respective pairwise interaction terms. In the ensuing stages of the analysis, a focus will be maintained on selecting a parsimonious subset of variables, with an aim to mitigate the risk of overfitting.
+
 ```{r}
-#| echo: false
-#| message: false
-#此处解释因为bic做准则比aic的变量多，我们倾向选择变量少的
+# try AIC and BIC
 model_math_interaction = AICmodel_math_interaction
 model_reading_interaction =
   step(full_model_reading_interaction, trace = 0, direction='backward')
@@ -289,7 +278,7 @@ model_writing_interaction =
   step(full_model_writing_interaction, trace = 0, direction='backward')
 
 # results
-# r.squared..
+# r.squared
 glance_math = broom::glance(model_math_interaction) |>
   mutate(model = "Math") |>
   select(model, r.squared, adj.r.squared, p.value, AIC, BIC) 
@@ -313,6 +302,8 @@ broom::tidy(model_reading_interaction) |>
 broom::tidy(model_writing_interaction) |>
   knitr::kable(caption = "Writing")
 ```
+
+Initially, we performed a approach combining automated procedures and criterion-based with both the Akaike Information Criterion (AIC) and the Bayesian Information Criterion (BIC) for model selection. It was observed that the application of the AIC criterion resulted in a model with fewer variables. Thus, we utilized the AIC criterion for backward elimination.
 
 ```{r}
 # try LASSO
@@ -380,8 +371,10 @@ model_writing_best = lm(Y_writing_train ~ Gender + EthnicGroup + ParentEduc +
     ParentEduc:IsFirstChild + LunchType:PracticeSport + 
     TestPrep:NrSiblings + ParentMaritalStatus:PracticeSport + 
     ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + 
-    IsFirstChild:WklyStudyHours, data = X_train)
+    IsFirstChild:WklyStudyHours, data = X_train) 
 ```
+
+However, the initial process leaving a considerable number of variables, we applied the LASSO (Least Absolute Shrinkage and Selection Operator) method for penalization. Utilizing cross-validation (cv), we identified the optimal lambda value. Subsequently, all interaction terms with shrinkage coefficients (s0) below 0.5 were eliminated. This refined approach resulted in the derivation of three models that were not only more efficient but also nested.
 
 ```{r, message=FALSE, warning=FALSE}
 par(mfrow=c(2,2))
@@ -395,6 +388,8 @@ plot(model_writing_best)
 mtext("Writing Model Diagnostic", outer = TRUE, cex = 1, line = -1)
 ```
 
+In the diagnostic analysis of our linear regression model, the Residuals versus Fitted values plot exhibited a stochastic distribution of residuals, devoid of any systematic patterns, thereby conforming to the assumptions of homoscedasticity and linearity. The Quantile-Quantile (QQ) plot demonstrated a close alignment of residuals with the theoretical normal distribution, as evidenced by the linear arrangement of data points. Furthermore, the Scale-Location plot revealed a uniform dispersion of residuals around a central horizontal axis, indicative of consistent variance across the spectrum of fitted values. Finally, the examination of the Residuals versus Leverage plot revealed an absence of high-leverage observations, thus suggesting that the model is not unduly influenced by outlier data points.
+
 ## Influential observations
 
 ```{r}
@@ -405,7 +400,7 @@ plot(model_writing_best, which = 4)
 ```
 
 
-从图中发现181，642可能是异常或者高影响值，但是除去之后建立模型发现差别不大，并且我们单独查看这两行数据也没有发现异常信息，于是最终模型还是保留以上数据。
+From the analysis of the plots, we identified a few points that appeared to be potential outliers or high-influence observations. However, upon examination, the Cook's distance values for these points were not significantly large. Additionally, when these points were excluded and the model was re-estimated, there was no substantial change in the model's performance. Upon further investigation of these specific data points, no anomalies were detected. Consequently, the final model was retained with these data points included.
 
 ## multicolinearity-没有强烈的多重共线性问题
 

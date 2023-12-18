@@ -29,6 +29,14 @@ Minimal missing values were observed, primarily in qualitative variables such as
 
 ## Model Assessment:
 
+## Model Selection:
+
+Although correlations among variables were not evident, the inclusion of interaction terms is justified based on theoretical and practical grounds. Full models incorporating all 11 predictors and their pairwise interactions were developed. Subsequent analysis will focus on choosing a simpler variable subset to reduce overfitting risks.
+
+Initially, we combined automated methods and criteria-based selection, using both AIC and BIC for model choice. The AIC criterion, yielding fewer variables, was preferred for backward elimination.
+
+Due to retaining too many variables, we applied LASSO for penalization, using cross-validation to find the optimal lambda. Interaction terms with shrinkage coefficients below 0.5 were removed, resulting in three more efficient, nested models.
+
 ### Cook's Distance (Residual vs Leverage Plot)
 
 Cook's Distance, combined with the Residual vs. Leverage Plot, identifies influential observations in regression models. It measures each observation's impact on the fitted values to highlight potential outliers.
@@ -61,9 +69,12 @@ ${MSPE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2.$
 
 相关性部分结果。
 
-To facilitate internal validity assessment in subsequent modeling, the data was split into a training set (80%) and a test set (20%).+建模部分结果。
+To facilitate internal validity assessment in subsequent modeling, the data was split into a training set (80%) and a test set (20%).
+
+By using a backward elimination approach based on the AIC criterion on the full model with interaction terms, followed by penalization with the LASSO method, we derived three succinct and optimal models. Diagnostic plots for these models indicate no issues.
 
 Examination of the residual vs leverage plots for the three models revealed a few outlier observations, notably in samples 181 and 268. However, closer inspection showed that their leverage did not exceed 0.5, and Cook's distances were below 0.1. Additionally, no data entry anomalies were identified in these samples. Removing these samples and reconstructing the models showed negligible differences from the original models. Therefore, no adjustments were made, and the original data was used for modeling.
+
 As for the multicollinearity check, we found no substantial multicollinearity concerns in any of the model variables.
 
 The cross-validation results indicated that the RMSE for the Math model was concentrated around 11, while for the Reading and Writing models, RMSE values were centered around 12.5. To test for potential overfitting, the initially separated test data was employed to evaluate the predictive performance of the models. The Mean Squared Prediction Errors (MSPE) for the Math, Reading, and Writing models were 256.9196, 134.7220, and 127.4526, respectively. Contrary to the RMSE results, the Math model exhibited a lower performance compared to the Reading and Writing models. Given that the Math model incorporated the most predictors, it suggests a potential issue with overfitting.
