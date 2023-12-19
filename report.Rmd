@@ -80,7 +80,7 @@ Minimal missing values were observed as figure 1, primarily in qualitative varia
 
 ## Model Selection:
 
-Despite the lack of evident correlations among variables, interaction terms were included in the full models based on theoretical and practical considerations. These models encompassed all 11 predictors with their pairwise interactions, aiming to further simplify the variable subset to mitigate overfitting risks.Utilizing a combination of automated methods and criteria-based selection, the model refinement process began with backward elimination guided by the AIC criterion, which favored fewer variables. However, this approach initially retained too many variables. Consequently, we employed LASSO penalization, complemented by cross-validation to determine the optimal lambda. This led to the removal of interaction terms with shrinkage coefficients under 0.5, yielding three more efficient, nested models. (see in appendix)
+Interaction terms were included in the full models, despite limited variable correlations, for theoretical and practical reasons, covering all 11 predictors and their interactions to reduce overfitting. Model refinement began with AIC-guided backward elimination, but to address the retention of excessive variables, we applied LASSO penalization with cross-validation for optimal lambda selection. This process eliminated interaction terms with shrinkage coefficients below 0.5, resulting in three more streamlined, nested models (detailed in the appendix).
 
 ## Model Assessment:
 
