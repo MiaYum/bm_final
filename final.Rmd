@@ -8,13 +8,11 @@ output:
 ---
 
 
-# 描述性统计
+# descriptive statistics
 
-## 变量分布
+## Distribution
 
 ```{r}
-#| echo: false
-#| message: false
 # Load necessary libraries
 library(dplyr)
 library(tidyr)
@@ -49,15 +47,10 @@ ggpairs(data, columns = c("MathScore", "ReadingScore", "WritingScore"))
 ```
 
 
-## 缺失值
+## Missing Value
 
 ```{r}
-#| echo: false
-#| message: false
-# Load necessary libraries
-library(ggplot2)
 library(reshape2)
-
 
 # Creating a function to count NA and empty strings as missing values
 count_missing <- function(x) sum(is.na(x) | x == "")
@@ -80,23 +73,16 @@ ggplot(melted_data, aes(x = variable, y = row)) +
   theme_minimal() + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(x = 'Variables', y = 'Observation Rows', title = 'Missing Data Heatmap')
-```
-```{r}
-#| echo: false
-#| message: false
+
 missing_data_frame
 ```
 
 
+# Data Preprocessing
 
-
-# 数据预处理
-
-## 缺失值填补
+## Filling Missing Value
 
 ```{r}
-#| echo: false
-#| message: false
 # Imputing missing values
 # For columns with fewer missing values, replace with mode
 get_mode <- function(v) {
@@ -122,8 +108,6 @@ data <- data %>% drop_na(TransportMeans)
 
 
 ```{r}
-#| echo: false
-#| message: false
 # Creating a function to count NA and empty strings as missing values
 count_missing <- function(x) sum(is.na(x) | x == "")
 # Calculating the missing values
@@ -133,12 +117,8 @@ missing_values <- sapply(data, function(x) count_missing(x))
 missing_data_frame <- data.frame(Variable = names(missing_values), MissingValues = missing_values)
 
 ```
+# Examine correlation/pairwise
 
-
-
-
-
-# 检查变量之间的边际分布和成对关系-correlation/pairwise
 ## Examine the marginal distributions and pairwise relationships between variables
 
 ```{r, message=FALSE}
@@ -151,7 +131,6 @@ library(GGally)
 ggpairs(data, columns=1:14, aes(alpha = 0.3))+ 
   theme_bw()
 ```
-这边感觉没有别的办法了，最后都是这个14*14的图，感觉不行我们直接这样然后说没看到obvious nonlinearities
 
 ## Correlation between variables
 ```{r}
@@ -173,15 +152,12 @@ knitr::kable(cramer_v_values, digits = 3)
 corrplot(cramer_v_values, type = "upper", order = "hclust", 
          tl.col = "black", tl.srt = 45)
 ```
-（这个变量的解释）Cramér's V (for categorical variables) varies from 0 (corresponding to no association between the variables) to 1 (complete association) and can reach 1 only when each variable is completely determined by the other.
+Cramér's V (for categorical variables) varies from 0 (corresponding to no association between the variables) to 1 (complete association) and can reach 1 only when each variable is completely determined by the other.
 
-这边有很多no relation的（很正常），predicators没有哪两个是colinear的
-这边auto的话，会自动选这几种correlation的compare方法： Strength of association is calculated for nominal vs nominal with a bias corrected Cramer's V, numeric vs numeric with Spearman (default) or Pearson correlation, and nominal vs numeric with ANOVA.
+Strength of association is calculated for nominal vs nominal with a bias corrected Cramer's V, numeric vs numeric with Spearman (default) or Pearson correlation, and nominal vs numeric with ANOVA. There should be a lot of no relation, and no two of the predictors are colinearity. If auto, it will automatically select the compare method for these correlation:
 
 
 ```{r}
-#| echo: false
-#| message: false
 library(car)
 set.seed(123) 
 splitRatio <- 0.8
@@ -198,8 +174,7 @@ Y_writing_train <- trainData$WritingScore
 
 ```
 
-即使两个变量之间存在统计关联，也不一定意味着它们会导致严重的多重共线性。例如，两个变量可能在某些类别上有统计关联，但它们的整体线性关系可能不强。所以都纳入模型
-#####################################################################################################
+Even if two variables are statistically correlated, it does not necessarily mean that they lead to severe multicollinearity. For example, two variables may be statistically related in some categories, but their overall linear relationship may not be strong. So both are included in the model.
 
 # Model Selection
 
@@ -235,31 +210,6 @@ model_reading_interaction =
   step(full_model_reading_interaction, trace = 0, direction='backward')
 model_writing_interaction =
   step(full_model_writing_interaction, trace = 0, direction='backward')
-
-# results
-# r.squared
-glance_math = broom::glance(model_math_interaction) |>
-  mutate(model = "Math") |>
-  select(model, r.squared, adj.r.squared, p.value, AIC, BIC) 
-
-glance_reading = broom::glance(model_reading_interaction) |>
-  mutate(model = "Reading") |>
-  select(model, r.squared, adj.r.squared, p.value, AIC, BIC) 
-
-glance_writing = broom::glance(model_writing_interaction) |>
-  mutate(model = "Writing") |>
-  select(model, r.squared, adj.r.squared, p.value, AIC, BIC) 
-
-bind_rows(glance_math, glance_reading, glance_writing) |>
-  knitr::kable()
-  
-# coef
-broom::tidy(model_math_interaction) |>
-  knitr::kable(caption = "Math")
-broom::tidy(model_reading_interaction) |>
-  knitr::kable(caption = "Reading")
-broom::tidy(model_writing_interaction) |>
-  knitr::kable(caption = "Writing")
 ```
 
 Initially, we performed a approach combining automated procedures and criterion-based with both the Akaike Information Criterion (AIC) and the Bayesian Information Criterion (BIC) for model selection. It was observed that the application of the AIC criterion resulted in a model with fewer variables. Thus, we utilized the AIC criterion for backward elimination.
@@ -335,16 +285,41 @@ model_writing_best = lm(Y_writing_train ~ Gender + EthnicGroup + ParentEduc +
 
 However, the initial process leaving a considerable number of variables, we applied the LASSO (Least Absolute Shrinkage and Selection Operator) method for penalization. Utilizing cross-validation (cv), we identified the optimal lambda value. Subsequently, all interaction terms with shrinkage coefficients (s0) below 0.5 were eliminated. This refined approach resulted in the derivation of three models that were not only more efficient but also nested.
 
+```{r}
+# results
+# r.squared
+glance_math = broom::glance(model_math_best) |>
+  mutate(model = "Math") |>
+  select(model, r.squared, adj.r.squared, p.value, AIC, BIC) 
+
+glance_reading = broom::glance(model_reading_best) |>
+  mutate(model = "Reading") |>
+  select(model, r.squared, adj.r.squared, p.value, AIC, BIC) 
+
+glance_writing = broom::glance(model_writing_best) |>
+  mutate(model = "Writing") |>
+  select(model, r.squared, adj.r.squared, p.value, AIC, BIC) 
+
+bind_rows(glance_math, glance_reading, glance_writing) |>
+  knitr::kable()
+```
+
+
 ```{r, message=FALSE, warning=FALSE}
-par(mfrow=c(2,2))
+output_file_name <- "model_diagnostics.png"
+
+png(file = output_file_name, width = 800, height = 800)
+
+par(mfrow = c(2, 2))
+
 plot(model_math_best) 
 mtext("Math Model Diagnostic", outer = TRUE, cex = 1, line = -1)
-
 plot(model_reading_best)
 mtext("Reading Model Diagnostic", outer = TRUE, cex = 1, line = -1)
-
 plot(model_writing_best)
 mtext("Writing Model Diagnostic", outer = TRUE, cex = 1, line = -1)
+
+dev.off()
 ```
 
 In the diagnostic analysis of our linear regression model, the Residuals versus Fitted values plot exhibited a stochastic distribution of residuals, devoid of any systematic patterns, thereby conforming to the assumptions of homoscedasticity and linearity. The Quantile-Quantile (QQ) plot demonstrated a close alignment of residuals with the theoretical normal distribution, as evidenced by the linear arrangement of data points. Furthermore, the Scale-Location plot revealed a uniform dispersion of residuals around a central horizontal axis, indicative of consistent variance across the spectrum of fitted values. Finally, the examination of the Residuals versus Leverage plot revealed an absence of high-leverage observations, thus suggesting that the model is not unduly influenced by outlier data points.
@@ -358,10 +333,9 @@ plot(model_reading_best, which = 4)
 plot(model_writing_best, which = 4)
 ```
 
-
 From the analysis of the plots, we identified a few points that appeared to be potential outliers or high-influence observations. However, upon examination, the Cook's distance values for these points were not significantly large. Additionally, when these points were excluded and the model was re-estimated, there was no substantial change in the model's performance. Upon further investigation of these specific data points, no anomalies were detected. Consequently, the final model was retained with these data points included.
 
-## multicolinearity-没有强烈的多重共线性问题
+## multicolinearity
 
 ```{r, warning=FALSE, message=FALSE}
 vif_values_math <- vif(model_math_best , type = 'predictor')
@@ -376,8 +350,6 @@ print(vif_values_reading)
 
 # cross validation
 ```{r, warning=FALSE}
-#| echo: false
-#| message: false
 library(caret)
 control <- trainControl(method = "cv", number = 10)
 set.seed(123)
@@ -413,14 +385,11 @@ print(writing_model_cv)
 
 ```{r}
 library(readr)
-library(dplyr)
-library(ggplot2)
 library(caret)
 library(purrr)
 library(tidyverse)
 library(plotly)
 library(modelr)
-library(tidyr)
 library(randomForest)
 library(boot)
 library(patchwork)
@@ -577,6 +546,18 @@ library(knitr)
 kable(mspe_values, col.names = c("Subject", "MSPE"), caption = "MSPE Values for Different Subjects")
 ```
 
+Take a look of coefficents. Try to understand model in more practical way.
+
+
+```{r}
+# coef
+broom::tidy(model_math_best) |>
+  knitr::kable(caption = "Math")
+broom::tidy(model_reading_best) |>
+  knitr::kable(caption = "Reading")
+broom::tidy(model_writing_best) |>
+  knitr::kable(caption = "Writing")
+```
 
 
 
