@@ -306,20 +306,24 @@ bind_rows(glance_math, glance_reading, glance_writing) |>
 
 
 ```{r, message=FALSE, warning=FALSE}
-output_file_name <- "model_diagnostics.png"
-
-png(file = output_file_name, width = 800, height = 800)
-
+png(file = "math.png", width = 800, height = 800)
 par(mfrow = c(2, 2))
-
 plot(model_math_best) 
-mtext("Math Model Diagnostic", outer = TRUE, cex = 1, line = -1)
-plot(model_reading_best)
-mtext("Reading Model Diagnostic", outer = TRUE, cex = 1, line = -1)
-plot(model_writing_best)
-mtext("Writing Model Diagnostic", outer = TRUE, cex = 1, line = -1)
-
+mtext("Math Model Diagnostic", outer = TRUE, cex = 1.5, line = -1)
 dev.off()
+
+png(file = "reading.png", width = 800, height = 800)
+par(mfrow = c(2, 2))
+plot(model_reading_best)
+mtext("Reading Model Diagnostic", outer = TRUE, cex = 1.5, line = -1)
+dev.off()
+
+png(file = "writing.png", width = 800, height = 800)
+par(mfrow = c(2, 2))
+plot(model_writing_best)
+mtext("Writing Model Diagnostic", outer = TRUE, cex = 1.5, line = -1)
+dev.off()
+
 ```
 
 In the diagnostic analysis of our linear regression model, the Residuals versus Fitted values plot exhibited a stochastic distribution of residuals, devoid of any systematic patterns, thereby conforming to the assumptions of homoscedasticity and linearity. The Quantile-Quantile (QQ) plot demonstrated a close alignment of residuals with the theoretical normal distribution, as evidenced by the linear arrangement of data points. Furthermore, the Scale-Location plot revealed a uniform dispersion of residuals around a central horizontal axis, indicative of consistent variance across the spectrum of fitted values. Finally, the examination of the Residuals versus Leverage plot revealed an absence of high-leverage observations, thus suggesting that the model is not unduly influenced by outlier data points.
