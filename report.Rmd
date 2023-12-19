@@ -26,34 +26,6 @@ This project is based on a dataset which includes three test scores (math, readi
 ## Data Description and Visualization
 There are a total of 14 variables(including 3 response variables[12-14] and 11 predictor variables[1-11]) with 948 observations in this dataset. The variables and description is listed below:
 
-1. Gender: Gender of the student (male/female)
-
-2. EthnicGroup: Ethnic group of the student (group A to E)
-
-3. ParentEduc: Parent(s) education background (from some_highschool to master's degree)
-
-4. LunchType: School lunch type (standard or free/reduced)
-
-5. TestPrep: Test preparation course followed (completed or none)
-
-6. ParentMaritalStatus: Parent(s) marital status (married/single/widowed/divorced)
-
-7. PracticeSport: How often the student parctice sport (never/sometimes/regularly))
-
-8. IsFirstChild: If the child is first child in the family or not (yes/no)
-
-9. NrSiblings: Number of siblings the student has (0 to 7)
-
-10. TransportMeans: Means of transport to school (schoolbus/private)
-
-11. WklyStudyHours: Weekly self-study hours(less that 5hrs; between 5 and 10hrs; more than 10hrs)
-
-12. MathScore: math test score(0-100)
-
-13. ReadingScore: reading test score(0-100)
-
-14. WritingScore: writing test score(0-100)
-
 The 11 predictor variables[1-11] are categorical variables and the 3 response variables[12-14] are continuous variables. 
 
 The 3 response variables all have a relatively symmetric distributions with several outliers.(See figure 1)
@@ -101,6 +73,12 @@ To facilitate internal validity assessment in subsequent modeling, the data was 
 Diagnostic plots for these models indicate no issues. Specifically, examination of the residual vs leverage plots for the three models revealed a few outlier observations, notably in samples 181 and 268 according to figure 2. However, closer inspection showed that their leverage did not exceed 0.5, and Cook's distances were below 0.1. Additionally, no data entry anomalies were identified in these samples. Removing these samples and reconstructing the models showed negligible differences from the original models. Therefore, no adjustments were made, and the original data was used for modeling. As for the multicollinearity check, we found no substantial multicollinearity concerns in any of the model variables.
 
 The cross-validation results indicated that the RMSE for the Math model was concentrated around 12, while for the Reading and Writing models, RMSE values were centered around 12.5, according to figure 3. To test for potential overfitting, the initially separated test data was employed to evaluate the predictive performance of the models. The Mean Squared Prediction Errors (MSPE) for the Math, Reading, and Writing models were 198.3466, 152.9267, and 142.8281, respectively. Contrary to the RMSE results, the Math model exhibited a lower performance compared to the Reading and Writing models. Given that the Math model incorporated the most predictors, it suggests a potential issue with overfitting.
+
+Finally, we dive deep into our model and related the statistical results to the initial problem in real world. Here are some important and interesting findings: 
+
+In all three models, the impact of gender on scores is very significant, specifically reflected in the fact that males perform better in math compared to females, while their reading and writing scores are lower than females. Students who did not participate in test preparation significantly scored lower in math, while students who enjoy standard lunch types and sometimes practice in sports significantly at the same time scored higher. Futhermore, ethnical Group D performing notably better. Whether taking the school bus and the duration of study also have certain impacts on some scores.
+
+Students who are firstborn significantly outperform those who are not the firstborn in reading and writing. The presence and number of siblings also have some impact on the scores, but the changes are not substantial. The lower the parents' education level, the significantly lower the children's reading and writing scores are. Surprisingly, parents' marital status has a significant change in scores. In the math score model, students with widowed parents can actually increase their scores by 32 points! (p-value = 0.019).
 
 # Conclusions/Discussion
 
@@ -230,4 +208,33 @@ Hyndman, R. J., & Athanasopoulos, G. (2018). Forecasting: Principles and Practic
 `ReadingScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + LunchType:PracticeSport + ParentMaritalStatus:PracticeSport + ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + NrSiblings:WklyStudyHours`
 
 `WritingScore ~ Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + IsFirstChild + NrSiblings + TransportMeans + WklyStudyHours + ParentEduc:IsFirstChild + LunchType:PracticeSport + TestPrep:NrSiblings + ParentMaritalStatus:PracticeSport + ParentMaritalStatus:IsFirstChild + PracticeSport:WklyStudyHours + IsFirstChild:WklyStudyHours`
+
+
+1. Gender: Gender of the student (male/female)
+
+2. EthnicGroup: Ethnic group of the student (group A to E)
+
+3. ParentEduc: Parent(s) education background (from some_highschool to master's degree)
+
+4. LunchType: School lunch type (standard or free/reduced)
+
+5. TestPrep: Test preparation course followed (completed or none)
+
+6. ParentMaritalStatus: Parent(s) marital status (married/single/widowed/divorced)
+
+7. PracticeSport: How often the student parctice sport (never/sometimes/regularly))
+
+8. IsFirstChild: If the child is first child in the family or not (yes/no)
+
+9. NrSiblings: Number of siblings the student has (0 to 7)
+
+10. TransportMeans: Means of transport to school (schoolbus/private)
+
+11. WklyStudyHours: Weekly self-study hours(less that 5hrs; between 5 and 10hrs; more than 10hrs)
+
+12. MathScore: math test score(0-100)
+
+13. ReadingScore: reading test score(0-100)
+
+14. WritingScore: writing test score(0-100)
 
