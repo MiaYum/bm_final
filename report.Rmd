@@ -80,32 +80,15 @@ Minimal missing values were observed as figure 1, primarily in qualitative varia
 
 ## Model Selection:
 
-### LASSO(Least Absolute Shrinkage and Selection Operator)
-
-LASSO ($\min_{\beta} \left( \frac{1}{N} \sum_{i=1}^{N} (y_i - \beta_0 - \sum_{j=1}^{p} x_{ij} \beta_j)^2 + \lambda \sum_{j=1}^{p} |\beta_j| \right)$), introduced by Robert Tibshirani in 1996, is a regression method that enhances model accuracy and interpretability by performing variable selection and regularization. Ideal for models with numerous predictors or high collinearity, LASSO shrinks some coefficients to zero, thus simplifying the model by penalizing the sum of absolute parameter values.
+Despite the lack of evident correlations among variables, interaction terms were included in the full models based on theoretical and practical considerations. These models encompassed all 11 predictors with their pairwise interactions, aiming to further simplify the variable subset to mitigate overfitting risks.Utilizing a combination of automated methods and criteria-based selection, the model refinement process began with backward elimination guided by the AIC criterion, which favored fewer variables. However, this approach initially retained too many variables. Consequently, we employed LASSO penalization, complemented by cross-validation to determine the optimal lambda. This led to the removal of interaction terms with shrinkage coefficients under 0.5, yielding three more efficient, nested models. (see in appendix)
 
 ## Model Assessment:
 
-### Cook's Distance (Residual vs Leverage Plot)
-
-Cook's Distance($D_i = \frac{\sum_{j=1}^{n} (\hat{Y}_j - \hat{Y}_{j(i)})^2}{p MSE}.$), combined with the Residual vs. Leverage Plot, identifies influential observations in regression models. It measures each observation's impact on the fitted values to highlight potential outliers.
-
-
-### VIF (Variance Inflation Factor)
-
-Adjusted Generalized Variance Inflation Factor (${GVIF}^{(1 / (2 \times Df))} = \left( \frac{1}{1 - R^2_j} \right)^{(1 / (2 \times {Df}_j))}.$ ) was used instead of traditional VIF to assess multicollinearity, especially suitable for categorical variables and models with interaction terms.
-
-An adjusted GVIF value ranging from 1 to 3 indicates no significant issues, while values exceeding 5 or 10 suggest notable multicollinearity. 
+We utilized various diagnostic plots, including residual vs. fitted, Q-Q plots, scale-location, and residuals vs. leverage, to check whether our model meets the assumptions. We also computed Cook's Distance to identify any influential observations. Furthermore, to assess the presence of multicollinearity issues, we calculated the model's adjusted Generalized Variance Inflation Factor (GVIF).
 
 ## Model Validation:
 
-### 10-fold Cross Validation
-
-A 10-fold cross-validation approach was employed. This method involves partitioning the data into 10 subsets, using 9 for training and 1 for validation in a rotating fashion. This process is repeated until each subset has been used for validation.
-
-### The Mean Squared Prediction Errors (MSPE)
-
-The Mean Squared Prediction Error (${MSPE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2.$) is a statistical measure used to evaluate the accuracy of a predictive model. It calculates the average of the squares of the prediction errors, where a prediction error is the difference between the observed values and the predicted values made by the model. 
+We employed a 10-fold cross-validation approach, which involved systematically partitioning the data into 10 subsets. In each cycle of this method, 9 subsets were used for training the model while the remaining one served as the validation set. This rotation continued until each subset had been utilized for validation, ensuring a comprehensive assessment of the model's performance. Additionally, to evaluate the predictive accuracy of our models, we calculated the Mean Squared Prediction Error (MSPE) using separate test data.
 
 # Results
 
@@ -115,15 +98,7 @@ There is no colinearities exist between response variables and explanatory varia
 
 To facilitate internal validity assessment in subsequent modeling, the data was split into a training set (80%) and a test set (20%).
 
-Despite the lack of evident correlations among variables, interaction terms were included in the full models based on theoretical and practical considerations. These models encompassed all 11 predictors with their pairwise interactions, aiming to further simplify the variable subset to mitigate overfitting risks.
-
-Utilizing a combination of automated methods and criteria-based selection, the model refinement process began with backward elimination guided by the AIC criterion, which favored fewer variables. However, this approach initially retained too many variables. Consequently, we employed LASSO penalization, complemented by cross-validation to determine the optimal lambda. This led to the removal of interaction terms with shrinkage coefficients under 0.5, yielding three more efficient, nested models. (see in appendix)
-
-Diagnostic plots for these models indicate no issues.
-
-Examination of the residual vs leverage plots for the three models revealed a few outlier observations, notably in samples 181 and 268 according to figure 2. However, closer inspection showed that their leverage did not exceed 0.5, and Cook's distances were below 0.1. Additionally, no data entry anomalies were identified in these samples. Removing these samples and reconstructing the models showed negligible differences from the original models. Therefore, no adjustments were made, and the original data was used for modeling.
-
-As for the multicollinearity check, we found no substantial multicollinearity concerns in any of the model variables.
+Diagnostic plots for these models indicate no issues. Specifically, examination of the residual vs leverage plots for the three models revealed a few outlier observations, notably in samples 181 and 268 according to figure 2. However, closer inspection showed that their leverage did not exceed 0.5, and Cook's distances were below 0.1. Additionally, no data entry anomalies were identified in these samples. Removing these samples and reconstructing the models showed negligible differences from the original models. Therefore, no adjustments were made, and the original data was used for modeling. As for the multicollinearity check, we found no substantial multicollinearity concerns in any of the model variables.
 
 The cross-validation results indicated that the RMSE for the Math model was concentrated around 12, while for the Reading and Writing models, RMSE values were centered around 12.5, according to figure 3. To test for potential overfitting, the initially separated test data was employed to evaluate the predictive performance of the models. The Mean Squared Prediction Errors (MSPE) for the Math, Reading, and Writing models were 198.3466, 152.9267, and 142.8281, respectively. Contrary to the RMSE results, the Math model exhibited a lower performance compared to the Reading and Writing models. Given that the Math model incorporated the most predictors, it suggests a potential issue with overfitting.
 
