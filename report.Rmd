@@ -57,11 +57,7 @@ Data was split into 80% training and 20% test sets for validity assessment. Diag
 
 Cross-validation results indicated RMSEs around 12 for the Math model and 12.5 for Reading and Writing (figure 10). MSPEs were 198.3466, 152.9267, and 142.8281, respectively, suggesting potential overfitting in the Math model due to its numerous predictors.
 
-Finally, we dive deep into our model and related the statistical results to the initial problem in real world. Here are some important and interesting findings: 
-
-In all three models, the impact of gender on scores is very significant, specifically reflected in the fact that males perform better in math compared to females, while their reading and writing scores are lower than females. Students who did not participate in test preparation significantly scored lower in math, while students who enjoy standard lunch types and sometimes practice in sports significantly at the same time scored higher. Futhermore, ethnical Group D performing notably better. Whether taking the school bus and the duration of study also have certain impacts on some scores.
-
-Students who are firstborn significantly outperform those who are not the firstborn in reading and writing. The presence and number of siblings also have some impact on the scores, but the changes are not substantial. The lower the parents' education level, the significantly lower the children's reading and writing scores are. Surprisingly, parents' marital status has a significant change in scores. In the math score model, students with widowed parents can actually increase their scores by 32 points! (p-value = 0.019).
+Finally, we dive deep into our model and related the statistical results to the initial problem in real world. Here are some important and interesting findings:  In all three models, the impact of gender on scores is very significant, specifically reflected in the fact that males perform better in math compared to females, while their reading and writing scores are lower than females. Students who did not participate in test preparation significantly scored lower in math, while students who enjoy standard lunch types and sometimes practice in sports significantly at the same time scored higher. Futhermore, ethnical Group D performing notably better. Whether taking the school bus and the duration of study also have certain impacts on some scores. Students who are firstborn significantly outperform those who are not the firstborn in reading and writing. The presence and number of siblings also have some impact on the scores, but the changes are not substantial. The lower the parents' education level, the significantly lower the children's reading and writing scores are. Surprisingly, parents' marital status has a significant change in scores. In the math score model, students with widowed parents can actually increase their scores by 32 points! (p-value = 0.019).
 
 # Conclusions/Discussion
 
@@ -69,7 +65,7 @@ Your content here.
 
 # A brief summary on each group member’s contribution
 
-Eunice Wang (cw3555) focused on initial data analysis and exploring relationships. Aiying Huang (ah4167) contributed to model construction, validation, and final report structuring. Mia Yu (my2838) was key in model selection and diagnostics, while all team members jointly wrote the report's introduction and conclusion."
+Eunice Wang (cw3555) focused on initial data analysis and exploring relationships. Aiying Huang (ah4167) contributed to model construction, validation, and final report structuring. Mia Yu (my2838) was key in model selection and diagnostics, while all team members jointly wrote the report's introduction and conclusion.
 
 \newpage
 
