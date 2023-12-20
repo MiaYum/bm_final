@@ -24,31 +24,16 @@ This project is based on a dataset which includes three test scores (math, readi
 # Methods (data description and statistical methods)
 
 ## Data Description and Visualization
-There are a total of 14 variables(including 3 response variables[12-14] and 11 predictor variables[1-11]) with 948 observations in this dataset. The variables and description is listed below:
 
-The 11 predictor variables[1-11] are categorical variables and the 3 response variables[12-14] are continuous variables. 
-
-The 3 response variables all have a relatively symmetric distributions with several outliers.(See figure 1)
-
-## Marginal Distributions and Pairwise Relationship 
-From the pariplot of marginal distributions, we can see that there is no obvious nonlinearities.(See figure 3)
+There are a total of 14 variables(including 3 response variables[12-14] and 11 predictor variables[1-11]) with 948 observations in this dataset. The 11 predictor variables[1-11] are categorical variables and the 3 response variables[12-14] are continuous variables. The 3 response variables all have a relatively symmetric distributions with several outliers.(See figure 1)
 
 ## Correlation between varibales
-We use the following methods to assess the strength of correlation:
 
-For categorical vs categorical variables, we use Cramer's V correlation.
-
-For continuous vs continuous variables, we use Pearson correlation.
-
-For categorical vs continuous variables, we use ANOVA(mcor).
-
-This correlation coefficient all varies from 0 (corresponding to no association between the variables) to 1 (complete association) and can reach 1 only when each variable is completely determined by the other.
-
-From the table and the heatmap we generated, we can see that there is no colinearities exist between response variables and explanatory variables. There are also colinearities exist within 11 explanatory variables. However, there is a high correlation between the 3 response variables.Each explanatory are correlated with the other two with a correlation coefficient higher than 0.8.
+We use the following methods to assess the strength of correlation: For categorical vs categorical variables, we use Cramer's V correlation. For continuous vs continuous variables, we use Pearson correlation. For categorical vs continuous variables, we use ANOVA(mcor). The correlation coefficients between variables all vary from 0 (corresponding to no association between the variables) to 1 (complete association) and can reach 1 only when each variable is completely determined by the other.
 
 ## Missing Value Treatment:
 
-Minimal missing values were observed as figure 1, primarily in qualitative variables such as EthnicGroup, ParentEduc, TestPrep, and others. Mode imputation was used for all except TransportMeans, with samples still showing missing values after imputation excluded. 
+Minimal missing values were observed as figure 5, primarily in qualitative variables such as EthnicGroup, ParentEduc, TestPrep, and others. Mode imputation was used for all except TransportMeans, with samples still showing missing values after imputation excluded. 
 
 ## Model Selection:
 
@@ -66,13 +51,11 @@ We employed a 10-fold cross-validation approach, which involved systematically p
 
 There are a total of 14 variables(including 3 response, continuouse variables[12-14] and 11 predictor, categorical variables[1-11]) with 948 observations in this dataset. After missing value treatment, we left 846 obserbvations for further analysis. The 3 response variables all have a relatively symmetric distributions with several outliers.
 
-There is no colinearities exist between response variables and explanatory variables, and within 11 explanatory variables. However, there is a high correlation between the 3 response variables.Each explanatory are correlated with the other two with a correlation coefficient higher than 0.8.
+There is no colinearities exist between response variables and explanatory variables(See figure 3), and within 11 explanatory variables(See figure 4). However, there is a high correlation between the 3 response variables.Each explanatory are correlated with the other two with a correlation coefficient higher than 0.8.
 
-To facilitate internal validity assessment in subsequent modeling, the data was split into a training set (80%) and a test set (20%).
+Data was split into 80% training and 20% test sets for validity assessment. Diagnostic plots (figures 6-8) show no major issues. Residual vs. leverage plots (figure 9) identified outliers, especially in samples 181 and 268, but with leverage under 0.5 and Cook's distances below 0.1, leading to no data adjustments. Multicollinearity checks revealed no significant concerns.
 
-Diagnostic plots for these models indicate no issues. Specifically, examination of the residual vs leverage plots for the three models revealed a few outlier observations, notably in samples 181 and 268 according to figure 2. However, closer inspection showed that their leverage did not exceed 0.5, and Cook's distances were below 0.1. Additionally, no data entry anomalies were identified in these samples. Removing these samples and reconstructing the models showed negligible differences from the original models. Therefore, no adjustments were made, and the original data was used for modeling. As for the multicollinearity check, we found no substantial multicollinearity concerns in any of the model variables.
-
-The cross-validation results indicated that the RMSE for the Math model was concentrated around 12, while for the Reading and Writing models, RMSE values were centered around 12.5, according to figure 3. To test for potential overfitting, the initially separated test data was employed to evaluate the predictive performance of the models. The Mean Squared Prediction Errors (MSPE) for the Math, Reading, and Writing models were 198.3466, 152.9267, and 142.8281, respectively. Contrary to the RMSE results, the Math model exhibited a lower performance compared to the Reading and Writing models. Given that the Math model incorporated the most predictors, it suggests a potential issue with overfitting.
+Cross-validation results indicated RMSEs around 12 for the Math model and 12.5 for Reading and Writing (figure 10). MSPEs were 198.3466, 152.9267, and 142.8281, respectively, suggesting potential overfitting in the Math model due to its numerous predictors.
 
 Finally, we dive deep into our model and related the statistical results to the initial problem in real world. Here are some important and interesting findings: 
 
@@ -86,7 +69,7 @@ Your content here.
 
 # A brief summary on each group member’s contribution
 
-Aiying Huang (ah4167) notably contributed to the project by handling literature research for methods, model construction and validation, and structuring the final report. Mia Yu (my2838) played a key role in model selection, additional methods research, and enhancing model diagnostics. Eunice Wang (cw3555) was crucial in initial data analysis, variable selection, relationship exploration, and writing the report's introduction and conclusion.
+Eunice Wang (cw3555) focused on initial data analysis and exploring relationships. Aiying Huang (ah4167) contributed to model construction, validation, and final report structuring. Mia Yu (my2838) was key in model selection and diagnostics, while all team members jointly wrote the report's introduction and conclusion."
 
 \newpage
 
@@ -201,7 +184,7 @@ Hyndman, R. J., & Athanasopoulos, G. (2018). Forecasting: Principles and Practic
 
 # Appendix
 
-## Three final regression models-看要不要加有coefficient的版本
+## Three final regression models
 
 `MathScore ~  Gender + EthnicGroup + ParentEduc + LunchType + TestPrep + ParentMaritalStatus + PracticeSport + TransportMeans + WklyStudyHours + Gender:PracticeSport + EthnicGroup:ParentEduc + ParentEduc:ParentMaritalStatus + + ParentEduc:PracticeSport + LunchType:PracticeSport + ParentMaritalStatus:TransportMeans + PracticeSport:WklyStudyHours`
 
