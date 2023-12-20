@@ -27,9 +27,9 @@ This project is based on a dataset which includes three test scores (math, readi
 
 There are a total of 14 variables(including 3 response variables[12-14] and 11 predictor variables[1-11]) with 948 observations in this dataset. The 11 predictor variables[1-11] are categorical variables and the 3 response variables[12-14] are continuous variables. The 3 response variables all have a relatively symmetric distributions with several outliers.(See figure 1)
 
-## Correlation between varibales
+## Pairwise Relationship and Correlation between varibales
 
-We use the following methods to assess the strength of correlation: For categorical vs categorical variables, we use Cramer's V correlation. For continuous vs continuous variables, we use Pearson correlation. For categorical vs continuous variables, we use ANOVA(mcor). The correlation coefficients between variables all vary from 0 (corresponding to no association between the variables) to 1 (complete association) and can reach 1 only when each variable is completely determined by the other.
+Marginal distributions of each variable is displayed through pariplot with no obvious nonlinearities.(See figure 3) We use the following methods to assess the strength of correlation: For categorical vs categorical variables, we use Cramer's V correlation. For continuous vs continuous variables, we use Pearson correlation. For categorical vs continuous variables, we use ANOVA(mcor). The correlation coefficients between variables all vary from 0 (corresponding to no association between the variables) to 1 (complete association) and can reach 1 only when each variable is completely determined by the other.(See figure 4)
 
 ## Missing Value Treatment:
 
@@ -51,7 +51,7 @@ We employed a 10-fold cross-validation approach, which involved systematically p
 
 There are a total of 14 variables(including 3 response, continuouse variables[12-14] and 11 predictor, categorical variables[1-11]) with 948 observations in this dataset. After missing value treatment, we left 846 obserbvations for further analysis. The 3 response variables all have a relatively symmetric distributions with several outliers.
 
-There is no colinearities exist between response variables and explanatory variables(See figure 3), and within 11 explanatory variables(See figure 4). However, there is a high correlation between the 3 response variables.Each explanatory are correlated with the other two with a correlation coefficient higher than 0.8.
+From the pairplot, we can see that there is no obvious nonlinearities regarding marginal distributions. (See figure 3) There is no colinearities exist between response variables and explanatory variables, and within 11 explanatory variables(See figure 4). However, there is a high correlation between the 3 response variables.Each explanatory are correlated with the other two with a correlation coefficient higher than 0.8.
 
 Data was split into 80% training and 20% test sets for validity assessment. Diagnostic plots (figures 6-8) show no major issues. Residual vs. leverage plots (figure 9) identified outliers, especially in samples 181 and 268, but with leverage under 0.5 and Cook's distances below 0.1, leading to no data adjustments. Multicollinearity checks revealed no significant concerns.
 
