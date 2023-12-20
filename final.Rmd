@@ -151,9 +151,7 @@ knitr::kable(cramer_v_values, digits = 3)
 corrplot(cramer_v_values, type = "upper", order = "hclust", 
          tl.col = "black", tl.srt = 45)
 ```
-Cramér's V (for categorical variables) varies from 0 (corresponding to no association between the variables) to 1 (complete association) and can reach 1 only when each variable is completely determined by the other.
 
-Strength of association is calculated for nominal vs nominal with a bias corrected Cramer's V, numeric vs numeric with Spearman (default) or Pearson correlation, and nominal vs numeric with ANOVA. There should be a lot of no relation, and no two of the predictors are colinearity. If auto, it will automatically select the compare method for these correlation:
 
 
 ```{r}
