@@ -49,7 +49,7 @@ We employed a 10-fold cross-validation approach, which involved systematically p
 
 # Results
 
-There are a total of 14 variables(including 3 response, continuouse variables[12-14] and 11 predictor, categorical variables[1-11]) with 948 observations in this dataset. After missing value treatment, we left 846 obserbvations for further analysis. The 3 response variables all have a relatively symmetric distributions with several outliers.(see figure 1)
+There are a total of 14 variables(including 3 response, continuouse variables[12-14] and 11 predictor, categorical variables[1-11]) with 948 observations in this dataset. After missing value treatment(see figure 5), we left 846 obserbvations for further analysis. The 3 response variables all have a relatively symmetric distributions with several outliers.(see figure 1)
 
 From the pairplot, we can see that there is no obvious nonlinearities regarding marginal distributions. (See figure 3) There is no colinearities exist between response variables and explanatory variables, and within 11 explanatory variables(See figure 4). However, there is a high correlation between the 3 response variables.Each explanatory are correlated with the other two with a correlation coefficient higher than 0.8.
 
