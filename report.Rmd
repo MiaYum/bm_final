@@ -25,15 +25,15 @@ This project is based on a dataset which includes three test scores (math, readi
 
 ## Data Description and Visualization
 
-There are a total of 14 variables(including 3 response variables[12-14] and 11 predictor variables[1-11]) with 948 observations in this dataset. The 11 predictor variables[1-11] are categorical variables and the 3 response variables[12-14] are continuous variables. The 3 response variables all have a relatively symmetric distributions with several outliers.(See figure 1)
+There are a total of 14 variables(including 3 response variables[12-14] and 11 predictor variables[1-11]) with 948 observations in this dataset. The 11 predictor variables[1-11] are categorical variables and the 3 response variables[12-14] are continuous variables. The 3 response variables all have a relatively symmetric distributions with several outliers.
 
 ## Pairwise Relationship and Correlation between varibales
 
-Marginal distributions of each variable is displayed through pariplot with no obvious nonlinearities.(See figure 3) We use the following methods to assess the strength of correlation: For categorical vs categorical variables, we use Cramer's V correlation. For continuous vs continuous variables, we use Pearson correlation. For categorical vs continuous variables, we use ANOVA(mcor). The correlation coefficients between variables all vary from 0 (corresponding to no association between the variables) to 1 (complete association) and can reach 1 only when each variable is completely determined by the other.(See figure 4)
+Marginal distributions of each variable is displayed through pariplot with no obvious nonlinearities. We use the following methods to assess the strength of correlation: For categorical vs categorical variables, we use Cramer's V correlation. For continuous vs continuous variables, we use Pearson correlation. For categorical vs continuous variables, we use ANOVA(mcor). The correlation coefficients between variables all vary from 0 (corresponding to no association between the variables) to 1 (complete association) and can reach 1 only when each variable is completely determined by the other.
 
 ## Missing Value Treatment:
 
-Minimal missing values were observed as figure 5, primarily in qualitative variables such as EthnicGroup, ParentEduc, TestPrep, and others. Mode imputation was used for all except TransportMeans, with samples still showing missing values after imputation excluded. 
+Minimal missing values were observed primarily in qualitative variables such as EthnicGroup, ParentEduc, TestPrep, and others. Mode imputation was used for all except TransportMeans, with samples still showing missing values after imputation excluded. 
 
 ## Model Selection:
 
