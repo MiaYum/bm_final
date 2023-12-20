@@ -549,17 +549,17 @@ library(knitr)
 kable(mspe_values, col.names = c("Subject", "MSPE"), caption = "MSPE Values for Different Subjects")
 ```
 
-Take a look of coefficents. Try to understand model in more practical way.
+Take a look of coeffcients. Try to understand model in more practical way.
 
 
 ```{r}
-# coef
+# Save the results
 broom::tidy(model_math_best) |>
-  knitr::kable(caption = "Math")
+  saveRDS("math_table.rds")
 broom::tidy(model_reading_best) |>
-  knitr::kable(caption = "Reading")
+  saveRDS("reading_table.rds")
 broom::tidy(model_writing_best) |>
-  knitr::kable(caption = "Writing")
+  saveRDS("writing_table.rds")
 ```
 
 
