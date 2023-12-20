@@ -15,7 +15,7 @@ geometry: margin=1in
 
 # Abstract
 
-a brief introduction, brief description of methods, and main results into a one-paragraph summary
+In this study, we analyzed test scores from a public school dataset, focusing on math, reading, and writing, alongside 11 socio-economic predictors. After reducing 948 observations to 846 due to missing values, we used AIC-guided backward elimination and LASSO penalization for model refinement. Diagnostic evaluations and 10-fold cross-validation were employed, suggesting a potential overfitting in the Math model. Key findings revealed significant gender impacts on scores and the influence of socio-economic factors such as test preparation, ethnicity, and parental status, with notable variations in math scores among students with different parental marital statuses.
 
 # Introduction
 
@@ -53,15 +53,15 @@ There are a total of 14 variables(including 3 response, continuouse variables[12
 
 From the pairplot, we can see that there is no obvious nonlinearities regarding marginal distributions. (See figure 3) There is no colinearities exist between response variables and explanatory variables, and within 11 explanatory variables(See figure 4). However, there is a high correlation between the 3 response variables.Each explanatory are correlated with the other two with a correlation coefficient higher than 0.8.
 
-Data was split into 80% training and 20% test sets for validity assessment. Diagnostic plots (figures 6-8) show no major issues. Residual vs. leverage plots (figure 9) identified outliers, especially in samples 181 and 268, but with leverage under 0.5 and Cook's distances below 0.1, leading to no data adjustments. Multicollinearity checks revealed no significant concerns.
+Data was split into 80% training and 20% test sets for validity assessment. Diagnostic plots (figures 6-8) show no major issues. Residual vs. leverage plots (figure 9) identified outliers, especially in samples 181 and 268, but with leverage under 0.5 and Cook's distances below 0.1, leading to no data adjustments. Multicollinearity checks revealed no significant concerns(table 2-4).
 
-Cross-validation results indicated RMSEs around 12 for the Math model and 12.5 for Reading and Writing (figure 10). MSPEs were 198.3466, 152.9267, and 142.8281, respectively, suggesting potential overfitting in the Math model due to its numerous predictors.
+Cross-validation results indicated RMSEs around 12 for the Math model and 12.5 for Reading and Writing (figure 10). MSPEs were 198.3466, 152.9267, and 142.8281(table 1), respectively, suggesting potential overfitting in the Math model due to its numerous predictors.
 
-Finally, we dive deep into our model and related the statistical results to the initial problem in real world. Here are some important and interesting findings:  In all three models, the impact of gender on scores is very significant, specifically reflected in the fact that males perform better in math compared to females, while their reading and writing scores are lower than females. Students who did not participate in test preparation significantly scored lower in math, while students who enjoy standard lunch types and sometimes practice in sports significantly at the same time scored higher. Futhermore, ethnical Group D performing notably better. Whether taking the school bus and the duration of study also have certain impacts on some scores. Students who are firstborn significantly outperform those who are not the firstborn in reading and writing. The presence and number of siblings also have some impact on the scores, but the changes are not substantial. The lower the parents' education level, the significantly lower the children's reading and writing scores are. Surprisingly, parents' marital status has a significant change in scores. In the math score model, students with widowed parents can actually increase their scores by 32 points! (p-value = 0.019).
+Finally, we dive deep into our model and related the statistical results to the initial problem in real world (table 5-7). Here are some important and interesting findings:  In all three models, the impact of gender on scores is very significant, specifically reflected in the fact that males perform better in math compared to females, while their reading and writing scores are lower than females. Students who did not participate in test preparation significantly scored lower in math, while students who enjoy standard lunch types and sometimes practice in sports significantly at the same time scored higher. Futhermore, ethnical Group D performing notably better. Whether taking the school bus and the duration of study also have certain impacts on some scores. Students who are firstborn significantly outperform those who are not the firstborn in reading and writing. The presence and number of siblings also have some impact on the scores, but the changes are not substantial. The lower the parents' education level, the significantly lower the children's reading and writing scores are. Surprisingly, parents' marital status has a significant change in scores. In the math score model, students with widowed parents can actually increase their scores by 32 points! (p-value = 0.019).
 
-# Conclusions/Discussion
+# Conclusions
 
-Your content here. 
+Our study on student test scores highlights key influences from socio-economic and personal factors, particularly gender, with robust modeling revealing significant impacts on academic outcomes. These insights are crucial for understanding and enhancing educational performance.
 
 # A brief summary on each group member’s contribution
 
@@ -164,6 +164,31 @@ knitr::kable(vif_values_reading, caption = "Variance Inflation Factors for Readi
 ```
 
 
+```{r, echo=FALSE}
+readRDS("math_table.rds") |>
+  lapply(function(x) if(is.numeric(x)) round(x, 3) else x) |>
+  data.frame() |>
+  knitr::kable(caption = "Math Model Coefficients") 
+```
+
+\newpage
+
+```{r, echo = FALSE}
+readRDS("reading_table.rds") |>
+  lapply(function(x) if(is.numeric(x)) round(x, 3) else x) |>
+  data.frame() |>
+  knitr::kable(caption = "Reading Model Coefficients") 
+```
+
+\newpage
+
+```{r, echo=FALSE}
+readRDS("writing_table.rds") |>
+  lapply(function(x) if(is.numeric(x)) round(x, 3) else x) |>
+  data.frame() |>
+  knitr::kable(caption = "Writing Model Coefficients") 
+```
+
 \newpage
 
 # References
@@ -216,28 +241,3 @@ Hyndman, R. J., & Athanasopoulos, G. (2018). Forecasting: Principles and Practic
 13. ReadingScore: reading test score(0-100)
 
 14. WritingScore: writing test score(0-100)
-
-```{r, echo=FALSE}
-readRDS("math_table.rds") |>
-  lapply(function(x) if(is.numeric(x)) round(x, 3) else x) |>
-  data.frame() |>
-  knitr::kable(caption = "Math Model Coefficients") 
-```
-
-\newpage
-
-```{r, echo = FALSE}
-readRDS("reading_table.rds") |>
-  lapply(function(x) if(is.numeric(x)) round(x, 3) else x) |>
-  data.frame() |>
-  knitr::kable(caption = "Reading Model Coefficients") 
-```
-
-\newpage
-
-```{r, echo=FALSE}
-readRDS("writing_table.rds") |>
-  lapply(function(x) if(is.numeric(x)) round(x, 3) else x) |>
-  data.frame() |>
-  knitr::kable(caption = "Writing Model Coefficients") 
-```
