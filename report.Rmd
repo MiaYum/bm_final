@@ -13,6 +13,8 @@ geometry: margin=1in
 ---
 \setstretch{2}  
 
+Group members: Aiying Huang (ah4167), Mia Yu (my2838), Eunice Wang(cw3555) 
+
 # Abstract
 
 In this study, we analyzed test scores from a public school dataset, focusing on math, reading, and writing, alongside 11 socio-economic predictors. After reducing 948 observations to 846 due to missing values, we used AIC-guided backward elimination and LASSO penalization for model refinement. Diagnostic evaluations and 10-fold cross-validation were employed, suggesting a potential overfitting in the Math model. Key findings revealed significant gender impacts on scores and the influence of socio-economic factors such as test preparation, ethnicity, and parental status, with notable variations in math scores among students with different parental marital statuses.
